@@ -10,8 +10,6 @@
 
 #include <string>
 
-#include <Arduino.h>
-
 #include "airgradientClient.h"
 
 class AirgradientWifiClient : public AirgradientClient {

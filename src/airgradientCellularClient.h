@@ -12,9 +12,6 @@
 
 #include "esp_log.h"
 
-//! Somehow if compile using pio and not include this. esp_log not come out.
-#include <Arduino.h>
-
 #include "airgradientClient.h"
 #include "cellularModule.h"
 

@@ -12,8 +12,7 @@
 
 class AirgradientClient {
 private:
-  // const char *const domain = "hw.airgradient.com";
-  const char *const domain = "hw-int.airgradient.com";
+  const char *const domain = "hw.airgradient.com";
 
 public:
   AirgradientClient() {};

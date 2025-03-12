@@ -28,8 +28,6 @@ CellularModuleA7672XX::~CellularModuleA7672XX() {
 }
 
 bool CellularModuleA7672XX::init() {
-  esp_log_level_set(TAG, ESP_LOG_INFO);
-
   if (_initialized) {
     ESP_LOGI(TAG, "Already initialized");
     return true;
