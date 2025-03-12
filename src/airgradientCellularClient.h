@@ -10,6 +10,9 @@
 
 #include <string>
 
+//! Somehow if compile using pio and not include this. esp_log not come out.
+#include <Arduino.h>
+
 #include "esp_log.h"
 
 #include "airgradientClient.h"
