@@ -5,7 +5,7 @@
  * CC BY-SA 4.0 Attribution-ShareAlike 4.0 International License
  */
 
-#include "include/agSerial.h"
+#include "agSerial.h"
 
 #define MAX_RETRY_IICSERIAL_UART_INIT 3
 

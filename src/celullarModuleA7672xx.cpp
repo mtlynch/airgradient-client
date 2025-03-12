@@ -5,8 +5,8 @@
  * CC BY-SA 4.0 Attribution-ShareAlike 4.0 International License
  */
 
-#include "include/celullarModuleA7672xx.h"
-#include "include/common.h"
+#include "celullarModuleA7672xx.h"
+#include "common.h"
 #include <cassert>
 #include <cstdint>
 #include <memory>

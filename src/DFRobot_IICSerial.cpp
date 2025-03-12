@@ -11,7 +11,7 @@
  */
 #include <Arduino.h>
 #include "config.h"
-#include "include/DFRobot_IICSerial.h"
+#include "DFRobot_IICSerial.h"
 
 /**
  * @brief Global register

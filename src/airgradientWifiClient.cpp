@@ -5,7 +5,7 @@
  * CC BY-SA 4.0 Attribution-ShareAlike 4.0 International License
  */
 
-#include "include/airgradientWifiClient.h"
+#include "airgradientWifiClient.h"
 
 #ifdef ESP8266
 #include <ESP8266HTTPClient.h>
