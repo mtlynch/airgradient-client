@@ -90,7 +90,7 @@ private:
 
   // AT Command functions
   CellReturnStatus _disableNetworkRegistrationURC(CellTechnology ct); // depend on CellTech
-  CellReturnStatus _applyCelullarTechnology(CellTechnology ct);
+  CellReturnStatus _applyCellularTechnology(CellTechnology ct);
   CellReturnStatus _applyOperatorSelection();
   CellReturnStatus _checkOperatorSelection();
   CellReturnStatus _isNetworkRegistered(CellTechnology ct); // TODO: Make this public function

@@ -5,7 +5,7 @@
  * CC BY-SA 4.0 Attribution-ShareAlike 4.0 International License
  */
 
-#include "celullarModuleA7672xx.h"
+#include "cellularModuleA7672xx.h"
 #include "common.h"
 #include <cassert>
 #include <cstdint>
@@ -43,7 +43,7 @@ bool CellularModuleA7672XX::init() {
   //! NO! it should initialized here! Right?
   // TODO: Add sanity check
 
-  // Initialize celullar module and wait for module to ready
+  // Initialize cellular module and wait for module to ready
   at_ = new ATCommandHandler(agSerial_);
   ESP_LOGI(TAG, "Checking module readiness...");
   if (!at_->testAT()) {
@@ -536,7 +536,7 @@ CellularModuleA7672XX::NetworkRegistrationState
 CellularModuleA7672XX::_implPrepareRegistration(CellTechnology ct) {
   // TODO: Check result
   _disableNetworkRegistrationURC(ct);
-  _applyCelullarTechnology(ct);
+  _applyCellularTechnology(ct);
   ESP_LOGI(TAG, "Continue: CHECK_NETWORK_REGISTRATION");
   return CHECK_NETWORK_REGISTRATION;
 }
@@ -676,7 +676,7 @@ CellReturnStatus CellularModuleA7672XX::_disableNetworkRegistrationURC(CellTechn
   return CellReturnStatus::Ok;
 }
 
-CellReturnStatus CellularModuleA7672XX::_applyCelullarTechnology(CellTechnology ct) {
+CellReturnStatus CellularModuleA7672XX::_applyCellularTechnology(CellTechnology ct) {
   // with assumption CT already validate before calling this function
   int mode = _mapCellTechToMode(ct);
   std::string cmd = std::string("+CNMP=") + std::to_string(mode);

@@ -6,7 +6,7 @@
 
 #ifdef USE_CELLULAR
 #include "airgradientCellularClient.h"
-#include "celullarModuleA7672xx.h"
+#include "cellularModuleA7672xx.h"
 #include "agSerial.h"
 AgSerial agSerial(Wire);
 CellularModule *cell;
