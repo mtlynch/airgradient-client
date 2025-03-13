@@ -19,11 +19,12 @@ public:
   virtual ~AirgradientClient() {};
 
   virtual bool begin();
-  virtual std::string httpFetchConfig(const std::string &sn); // Maybe pass serial number
-
+  virtual std::string httpFetchConfig(const std::string &sn);
   virtual bool httpPostMeasures(const std::string &sn, const std::string &payload);
 
   // Implemented on base class, not override function
+  void resetFetchConfigurationStatus();
+  void resetPostMeasuresStatus();
   bool isLastFetchConfigSucceed();
   bool isLastPostMeasureSucceed();
   bool isRegisteredOnAgServer();

@@ -66,6 +66,7 @@ public:
   CellReturnStatus isSimReady();
   CellResult<int> retrieveSignal();
   CellResult<std::string> retrieveIPAddr();
+  CellReturnStatus isNetworkRegistered(CellTechnology ct);
   CellResult<std::string> startNetworkRegistration(CellTechnology ct, const std::string &apn,
                                                    uint32_t operationTimeoutMs = 90000);
   CellResult<CellularModule::HttpResponse>
@@ -93,7 +94,6 @@ private:
   CellReturnStatus _applyCellularTechnology(CellTechnology ct);
   CellReturnStatus _applyOperatorSelection();
   CellReturnStatus _checkOperatorSelection();
-  CellReturnStatus _isNetworkRegistered(CellTechnology ct); // TODO: Make this public function
   CellReturnStatus _isServiceAvailable();
   CellReturnStatus _applyAPN(const std::string &apn);
   CellReturnStatus _ensurePacketDomainAttached();

@@ -49,6 +49,7 @@ public:
   virtual CellReturnStatus isSimReady();
   virtual CellResult<int> retrieveSignal();
   virtual CellResult<std::string> retrieveIPAddr();
+  virtual CellReturnStatus isNetworkRegistered(CellTechnology ct);
   virtual CellResult<std::string> startNetworkRegistration(CellTechnology ct,
                                                            const std::string &apn,
                                                            uint32_t operationTimeoutMs = 90000);

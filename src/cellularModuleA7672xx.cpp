@@ -208,6 +208,37 @@ CellResult<std::string> CellularModuleA7672XX::retrieveIPAddr() {
   return result;
 }
 
+CellReturnStatus CellularModuleA7672XX::isNetworkRegistered(CellTechnology ct) {
+  auto cmdNR = _mapCellTechToNetworkRegisCmd(ct);
+  if (cmdNR.empty()) {
+    return CellReturnStatus::Error;
+  }
+
+  char buf[15] = {0};
+  sprintf(buf, "+%s?", cmdNR.c_str());
+  at_->sendAT(buf);
+  int resp = at_->waitResponse("+CREG:", "+CEREG:", "+CGREG:");
+  if (resp != ATCommandHandler::ExpArg1 && resp != ATCommandHandler::ExpArg2 &&
+      resp != ATCommandHandler::ExpArg3) {
+    return CellReturnStatus::Timeout;
+  }
+
+  std::string recv;
+  if (at_->waitAndRecvRespLine(recv) == -1) {
+    return CellReturnStatus::Timeout;
+  }
+
+  auto crs = CellReturnStatus::Ok;
+  if (recv != "0,1" && recv != "0,5" && recv != "1,1" && recv != "1,5") {
+    crs = CellReturnStatus::Failed;
+  }
+
+  // receive OK response from the buffer, ignore it
+  at_->waitResponse();
+
+  return crs;
+}
+
 CellResult<std::string>
 CellularModuleA7672XX::startNetworkRegistration(CellTechnology ct, const std::string &apn,
                                                 uint32_t operationTimeoutMs) {
@@ -543,7 +574,7 @@ CellularModuleA7672XX::_implPrepareRegistration(CellTechnology ct) {
 
 CellularModuleA7672XX::NetworkRegistrationState
 CellularModuleA7672XX::_implCheckNetworkRegistration(CellTechnology ct) {
-  CellReturnStatus crs = _isNetworkRegistered(ct);
+  CellReturnStatus crs = isNetworkRegistered(ct);
   if (crs == CellReturnStatus::Timeout) {
     // Go back to check module ready
     return CHECK_MODULE_READY;
@@ -710,37 +741,6 @@ CellReturnStatus CellularModuleA7672XX::_checkOperatorSelection() {
 
   // ignore <oper> value
   if (at_->waitResponse(" 0,2,\"") != ATCommandHandler::ExpArg1) {
-    crs = CellReturnStatus::Failed;
-  }
-
-  // receive OK response from the buffer, ignore it
-  at_->waitResponse();
-
-  return crs;
-}
-
-CellReturnStatus CellularModuleA7672XX::_isNetworkRegistered(CellTechnology ct) {
-  auto cmdNR = _mapCellTechToNetworkRegisCmd(ct);
-  if (cmdNR.empty()) {
-    return CellReturnStatus::Error;
-  }
-
-  char buf[15] = {0};
-  sprintf(buf, "+%s?", cmdNR.c_str());
-  at_->sendAT(buf);
-  int resp = at_->waitResponse("+CREG:", "+CEREG:", "+CGREG:");
-  if (resp != ATCommandHandler::ExpArg1 && resp != ATCommandHandler::ExpArg2 &&
-      resp != ATCommandHandler::ExpArg3) {
-    return CellReturnStatus::Timeout;
-  }
-
-  std::string recv;
-  if (at_->waitAndRecvRespLine(recv) == -1) {
-    return CellReturnStatus::Timeout;
-  }
-
-  auto crs = CellReturnStatus::Ok;
-  if (recv != "0,1" && recv != "0,5" && recv != "1,1" && recv != "1,5") {
     crs = CellReturnStatus::Failed;
   }
 

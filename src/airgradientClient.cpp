@@ -15,7 +15,12 @@ bool AirgradientClient::httpPostMeasures(const std::string &sn, const std::strin
   return false;
 }
 
+void AirgradientClient::resetFetchConfigurationStatus() { lastFetchConfigSucceed = true; }
+
+void AirgradientClient::resetPostMeasuresStatus() { lastPostMeasuresSucceed = true; }
+
 bool AirgradientClient::isLastFetchConfigSucceed() { return lastFetchConfigSucceed; }
+
 bool AirgradientClient::isLastPostMeasureSucceed() { return lastPostMeasuresSucceed; }
 
 bool AirgradientClient::isRegisteredOnAgServer() { return registeredOnAgServer; }

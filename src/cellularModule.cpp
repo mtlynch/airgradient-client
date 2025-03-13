@@ -31,6 +31,8 @@ CellResult<int> CellularModule::retrieveSignal() { return CellResult<int>(); }
 
 CellResult<std::string> CellularModule::retrieveIPAddr() { return CellResult<std::string>(); }
 
+CellReturnStatus CellularModule::isNetworkRegistered(CellTechnology ct) { return CellReturnStatus(); }
+
 CellResult<std::string> CellularModule::startNetworkRegistration(CellTechnology ct,
                                                                  const std::string &apn,
                                                                  uint32_t operationTimeoutMs) {
