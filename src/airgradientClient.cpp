@@ -9,6 +9,8 @@
 
 bool AirgradientClient::begin() { return true; }
 
+bool AirgradientClient::ensureClientConnection() { return true; }
+
 std::string AirgradientClient::httpFetchConfig(const std::string &sn) { return std::string(); }
 
 bool AirgradientClient::httpPostMeasures(const std::string &sn, const std::string &payload) {

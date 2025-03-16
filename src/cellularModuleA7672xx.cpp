@@ -6,6 +6,7 @@
  */
 
 #include "cellularModuleA7672xx.h"
+#include "Libraries/airgradient-client/src/cellularModule.h"
 #include "common.h"
 #include <cassert>
 #include <cstdint>
@@ -326,6 +327,31 @@ CellularModuleA7672XX::startNetworkRegistration(CellTechnology ct, const std::st
 
   result.status = CellReturnStatus::Ok;
   return result;
+}
+
+CellReturnStatus CellularModuleA7672XX::reinitialize() {
+  ESP_LOGI(TAG, "Power cycling module");
+  powerOff();
+  DELAY_MS(1000);
+  powerOn();
+
+  ESP_LOGI(TAG, "Initialize module");
+  if (!at_->testAT()) {
+    ESP_LOGW(TAG, "Failed wait cellular module to ready");
+    return CellReturnStatus::Error;
+  }
+
+  // Disable echo
+  at_->sendAT("E0");
+  at_->waitResponse();
+  DELAY_MS(2000);
+
+  // Disable GPRS event reporting (URC)
+  at_->sendAT("+CGEREP=0");
+  at_->waitResponse();
+  DELAY_MS(2000);
+
+  return CellReturnStatus::Ok;
 }
 
 CellResult<CellularModule::HttpResponse>

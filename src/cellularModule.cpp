@@ -39,6 +39,10 @@ CellResult<std::string> CellularModule::startNetworkRegistration(CellTechnology 
   return CellResult<std::string>();
 }
 
+CellReturnStatus CellularModule::reinitialize() {
+  return CellReturnStatus();
+}
+
 CellResult<CellularModule::HttpResponse>
 CellularModule::httpGet(const std::string &url, int connectionTimeout, int responseTimeout) {
   return CellResult<HttpResponse>();

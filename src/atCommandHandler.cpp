@@ -9,7 +9,7 @@
 
 #define AT_YIELD()                                                                                 \
   {                                                                                                \
-    DELAY_MS(1);                                                                                   \
+    DELAY_MS(2);                                                                                   \
   }
 
 ATCommandHandler::ATCommandHandler(AgSerial *agSerial) : agSerial_(agSerial) {}

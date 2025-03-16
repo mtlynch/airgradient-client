@@ -19,6 +19,7 @@ public:
   virtual ~AirgradientClient() {};
 
   virtual bool begin();
+  virtual bool ensureClientConnection();
   virtual std::string httpFetchConfig(const std::string &sn);
   virtual bool httpPostMeasures(const std::string &sn, const std::string &payload);
 

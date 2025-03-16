@@ -29,7 +29,7 @@ public:
   ~AirgradientCellularClient() {};
 
   bool begin();
-
+  bool ensureClientConnection();
   std::string httpFetchConfig(const std::string &sn);
   bool httpPostMeasures(const std::string &sn, const std::string &payload);
 };

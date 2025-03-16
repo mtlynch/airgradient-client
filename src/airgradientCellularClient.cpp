@@ -6,6 +6,7 @@
  */
 
 #include "airgradientCellularClient.h"
+#include "Libraries/airgradient-client/src/cellularModule.h"
 
 AirgradientCellularClient::AirgradientCellularClient(CellularModule *cellularModule)
     : cell_(cellularModule) {}
@@ -42,10 +43,37 @@ bool AirgradientCellularClient::begin() {
   return true;
 }
 
+bool AirgradientCellularClient::ensureClientConnection() {
+  if (cell_->isNetworkRegistered(CellTechnology::LTE) == CellReturnStatus::Ok) {
+    return true;
+  }
+
+  ESP_LOGE(TAG, "Network not registered! Power cycle module and restart network registration");
+  if (cell_->reinitialize() != CellReturnStatus::Ok) {
+    ESP_LOGE(TAG, "Failed reinitialized cellular module");
+    return false;
+  }
+
+  // To make sure module ready to use
+  if (cell_->isSimReady() != CellReturnStatus::Ok) {
+    ESP_LOGE(TAG, "SIM is not ready, please check if SIM is inserted properly!");
+    return false;
+  }
+
+  // Register network
+  auto result = cell_->startNetworkRegistration(CellTechnology::LTE, _apn, 30000);
+  if (result.status != CellReturnStatus::Ok) {
+    ESP_LOGE(TAG, "Cellular client failed, module cannot register to network");
+    return false;
+  }
+
+  ESP_LOGI(TAG, "Cellular client ready, module registered to network");
+
+  return true;
+}
+
 std::string AirgradientCellularClient::httpFetchConfig(const std::string &sn) {
   std::string url = buildFetchConfigUrl(sn);
-
-  // FIXME: Now only assume module is ready
 
   ESP_LOGI(TAG, "Fetch configuration from server");
   auto result = cell_->httpGet(url); // TODO: Define timeouts
@@ -93,8 +121,6 @@ std::string AirgradientCellularClient::httpFetchConfig(const std::string &sn) {
 bool AirgradientCellularClient::httpPostMeasures(const std::string &sn,
                                                  const std::string &payload) {
   std::string url = buildPostMeasuresUrl(sn);
-
-  // FIXME: Now only assume module is ready
 
   ESP_LOGI(TAG, "Post measures to server");
   auto result = cell_->httpPost(url, payload); // TODO: Define timeouts

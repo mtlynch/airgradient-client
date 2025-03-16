@@ -53,6 +53,7 @@ public:
   virtual CellResult<std::string> startNetworkRegistration(CellTechnology ct,
                                                            const std::string &apn,
                                                            uint32_t operationTimeoutMs = 90000);
+  virtual CellReturnStatus reinitialize();
   virtual CellResult<HttpResponse> httpGet(const std::string &url, int connectionTimeout = -1,
                                            int responseTimeout = -1);
   virtual CellResult<HttpResponse> httpPost(const std::string &url, const std::string &body,
