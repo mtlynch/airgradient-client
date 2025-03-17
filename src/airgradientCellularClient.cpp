@@ -45,6 +45,7 @@ bool AirgradientCellularClient::begin() {
 
 bool AirgradientCellularClient::ensureClientConnection() {
   if (cell_->isNetworkRegistered(CellTechnology::LTE) == CellReturnStatus::Ok) {
+    ESP_LOGI(TAG, "Client connection is OK");
     return true;
   }
 

@@ -8,7 +8,6 @@
 #include "cellularModuleA7672xx.h"
 #include "Libraries/airgradient-client/src/cellularModule.h"
 #include "common.h"
-#include <cassert>
 #include <cstdint>
 #include <memory>
 
@@ -416,18 +415,16 @@ CellularModuleA7672XX::httpGet(const std::string &url, int connectionTimeout, in
       response = at_->waitResponse("+HTTPREAD:"); // Wait for first +HTTPREAD, skip the OK
       if (response == ATCommandHandler::Timeout) {
         ESP_LOGW(TAG, "Timeout wait response +HTTPREAD");
-        // FIXME: Timeout what to do?
-        assert(0);
+        break;
       } else if (response == ATCommandHandler::ExpArg2) {
         ESP_LOGW(TAG, "Error execute HTTPREAD");
-        // FIXME: Failed what to do?
-        assert(0);
+        break;
       }
 
       // Get first +HTTPREAD value
       if (at_->waitAndRecvRespLine(buf, HTTPREAD_CHUNK_SIZE) == -1) {
-        // FIXME: Timeout what to do?
-        assert(0);
+        ESP_LOGW(TAG, "Failed retrieve +HTTPREAD value length");
+        break;
       }
       receivedBufferLen = std::stoi(buf);
 
@@ -435,10 +432,10 @@ CellularModuleA7672XX::httpGet(const std::string &url, int connectionTimeout, in
       // Directly retrieve buffer with expected the expected length
       int receivedActual = at_->retrieveBuffer(buf, receivedBufferLen);
       if (receivedActual != receivedBufferLen) {
-        // FIXME: size received not the same as expected, handle better
-        ESP_LOGI(TAG, "receivedBufferLen: %d | receivedActual: %d", receivedBufferLen,
+        // Size received not the same as expected, handle better
+        ESP_LOGE(TAG, "receivedBufferLen: %d | receivedActual: %d", receivedBufferLen,
                  receivedActual);
-        assert(0);
+        break;
       }
       at_->clearBuffer();
 
@@ -451,6 +448,14 @@ CellularModuleA7672XX::httpGet(const std::string &url, int connectionTimeout, in
       offset = offset + HTTPREAD_CHUNK_SIZE;
 
     } while (offset < bodyLen); // TODO: Add timeout?
+    
+    // Check if all response body data received
+    if (offset < bodyLen) {
+      ESP_LOGE(TAG, "Failed to retrieve all response body data from module");
+      _httpTerminate();
+      delete[] bodyResponse;
+      return result;
+    }
   }
 
   ESP_LOGD(TAG, "Finish retrieve response body from module buffer in %.2fs",
