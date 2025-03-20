@@ -56,8 +56,10 @@ public:
   virtual CellReturnStatus reinitialize();
   virtual CellResult<HttpResponse> httpGet(const std::string &url, int connectionTimeout = -1,
                                            int responseTimeout = -1);
-  virtual CellResult<HttpResponse> httpPost(const std::string &url, const std::string &body,
-                                            int connectionTimeout = -1, int responseTimeout = -1);
+  virtual CellResult<HttpResponse>
+  httpPost(const std::string &url, const std::string &body,
+           const std::string &headContentType = "", int connectionTimeout = -1,
+           int responseTimeout = -1);
 
 private:
   /* data */

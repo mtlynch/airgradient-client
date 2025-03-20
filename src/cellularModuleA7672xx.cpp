@@ -483,15 +483,17 @@ CellularModuleA7672XX::httpGet(const std::string &url, int connectionTimeout, in
   return result;
 }
 
-CellResult<CellularModule::HttpResponse> CellularModuleA7672XX::httpPost(const std::string &url,
-                                                                         const std::string &body,
-                                                                         int connectionTimeout,
-                                                                         int responseTimeout) {
+CellResult<CellularModule::HttpResponse>
+CellularModuleA7672XX::httpPost(const std::string &url, const std::string &body,
+                                const std::string &headContentType,
+                                int connectionTimeout, int responseTimeout) {
+
   CellResult<CellularModule::HttpResponse> result;
   result.status = CellReturnStatus::Error;
   ATCommandHandler::Response response;
 
   // TODO: Sanity check Registration Status?
+
 
   // +HTTPINIT
   result.status = _httpInit();
@@ -507,20 +509,23 @@ CellResult<CellularModule::HttpResponse> CellularModuleA7672XX::httpPost(const s
     return result;
   }
 
-  // TODO: Make httpPost receive content type
-  // AT+HTTPPARA="CONTENT",<conntimeout>
-  at_->sendAT("+HTTPPARA=\"CONTENT\",\"application/json\"");
-  response = at_->waitResponse();
-  if (response == ATCommandHandler::Timeout) {
-    ESP_LOGW(TAG, "Timeout wait response +HTTPPARA CONTENT");
-    _httpTerminate();
-    result.status = CellReturnStatus::Timeout;
-    return result;
-  } else if (response == ATCommandHandler::ExpArg2) {
-    ESP_LOGW(TAG, "Error set HTTP param CONTENT");
-    _httpTerminate();
-    result.status = CellReturnStatus::Error;
-    return result;
+  if (headContentType != "") {
+    // AT+HTTPPARA="CONTENT", contenttype
+    char buffer[100] = {0};
+    sprintf(buffer, "+HTTPPARA=\"CONTENT\",\"%s\"", headContentType.c_str());
+    at_->sendAT(buffer);
+    response = at_->waitResponse();
+    if (response == ATCommandHandler::Timeout) {
+      ESP_LOGW(TAG, "Timeout wait response +HTTPPARA CONTENT");
+      _httpTerminate();
+      result.status = CellReturnStatus::Timeout;
+      return result;
+    } else if (response == ATCommandHandler::ExpArg2) {
+      ESP_LOGW(TAG, "Error set HTTP param CONTENT");
+      _httpTerminate();
+      result.status = CellReturnStatus::Error;
+      return result;
+    }
   }
 
   // TODO: Another +HTTPPARA to handle https request SSLCFG

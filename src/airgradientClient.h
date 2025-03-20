@@ -12,7 +12,6 @@
 
 class AirgradientClient {
 private:
-  const char *const domain = "hw.airgradient.com";
 
 public:
   AirgradientClient() {};
@@ -31,6 +30,7 @@ public:
   bool isRegisteredOnAgServer();
 
 protected:
+  const char *const domain = "hw.airgradient.com";
   const char *const AG_SERVER_ROOT_CA =
       "-----BEGIN CERTIFICATE-----\n"
       "MIIF4jCCA8oCCQD7MgvcaVWxkTANBgkqhkiG9w0BAQsFADCBsjELMAkGA1UEBhMC\n"
@@ -70,8 +70,8 @@ protected:
   std::string buildFetchConfigUrl(const std::string &sn, bool useHttps = false);
   std::string buildPostMeasuresUrl(const std::string &sn, bool useHttps = false);
 
-  bool lastPostMeasuresSucceed = false;
-  bool lastFetchConfigSucceed = false;
+  bool lastPostMeasuresSucceed = true;
+  bool lastFetchConfigSucceed = true;
   bool registeredOnAgServer = true;
 };
 #endif // AIRGRADIENT_CLIENT_H

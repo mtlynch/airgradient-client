@@ -72,9 +72,10 @@ public:
   CellReturnStatus reinitialize();
   CellResult<CellularModule::HttpResponse>
   httpGet(const std::string &url, int connectionTimeout = -1, int responseTimeout = -1);
-  CellResult<CellularModule::HttpResponse> httpPost(const std::string &url, const std::string &body,
-                                                    int connectionTimeout = -1,
-                                                    int responseTimeout = -1);
+  CellResult<CellularModule::HttpResponse>
+  httpPost(const std::string &url, const std::string &body,
+           const std::string &headContentType = "", int connectionTimeout = -1,
+           int responseTimeout = -1);
 
 private:
   const int DEFAULT_HTTP_CONNECT_TIMEOUT = 120; // seconds

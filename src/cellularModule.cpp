@@ -50,6 +50,7 @@ CellularModule::httpGet(const std::string &url, int connectionTimeout, int respo
 
 CellResult<CellularModule::HttpResponse> CellularModule::httpPost(const std::string &url,
                                                                   const std::string &body,
+                                                                  const std::string &headContentType,
                                                                   int connectionTimeout,
                                                                   int responseTimeout) {
   return CellResult<HttpResponse>();

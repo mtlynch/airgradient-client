@@ -121,7 +121,9 @@ std::string AirgradientCellularClient::httpFetchConfig(const std::string &sn) {
 
 bool AirgradientCellularClient::httpPostMeasures(const std::string &sn,
                                                  const std::string &payload) {
-  std::string url = buildPostMeasuresUrl(sn);
+  // std::string url = buildPostMeasuresUrl(sn);
+  char url[80] = {0};
+  sprintf(url, "http://%s/sensors/%s/c-c", domain, sn.c_str());
 
   ESP_LOGI(TAG, "Post measures to server");
   auto result = cell_->httpPost(url, payload); // TODO: Define timeouts
@@ -133,7 +135,7 @@ bool AirgradientCellularClient::httpPostMeasures(const std::string &sn,
   }
 
   // Response status check if post failed
-  if ((result.data.statusCode != 200) && (result.data.statusCode != 429)) {
+  if ((result.data.statusCode != 200) && (result.data.statusCode != 429) && (result.data.statusCode != 201)) {
     ESP_LOGW(TAG, "Failed post measures to server with response code %d", result.data.statusCode);
     lastPostMeasuresSucceed = false;
     return false;
