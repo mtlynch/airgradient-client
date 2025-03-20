@@ -11,7 +11,7 @@
 #include <string>
 
 #include "freertos/FreeRTOS.h"
-#include "freeRTOS/task.h"
+#include "freertos/task.h"
 
 #define DELAY_MS(ms) vTaskDelay(pdMS_TO_TICKS(ms))
 #define MILLIS() ((uint32_t)(esp_timer_get_time() / 1000))
