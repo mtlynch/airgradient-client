@@ -15,9 +15,9 @@
 #include <HTTPClient.h>
 #endif
 
-std::string AirgradientWifiClient::httpFetchConfig(const std::string &sn) {
+std::string AirgradientWifiClient::httpFetchConfig() {
   Serial.println("Fetch configuration from server");
-  std::string url = buildFetchConfigUrl(sn, true);
+  std::string url = buildFetchConfigUrl(true);
 
   // Init http client
 #ifdef ESP8266
@@ -69,9 +69,9 @@ std::string AirgradientWifiClient::httpFetchConfig(const std::string &sn) {
 
   return responseBody;
 }
-bool AirgradientWifiClient::httpPostMeasures(const std::string &sn, const std::string &payload) {
+bool AirgradientWifiClient::httpPostMeasures(const std::string &payload) {
   Serial.println("Post measures to server");
-  std::string url = buildPostMeasuresUrl(sn, true);
+  std::string url = buildPostMeasuresUrl(true);
 
 #ifdef ESP8266
   HTTPClient client;

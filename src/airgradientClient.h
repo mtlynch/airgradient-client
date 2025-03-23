@@ -18,8 +18,8 @@ public:
 
   virtual bool begin(std::string sn);
   virtual bool ensureClientConnection();
-  virtual std::string httpFetchConfig(const std::string &sn);
-  virtual bool httpPostMeasures(const std::string &sn, const std::string &payload);
+  virtual std::string httpFetchConfig();
+  virtual bool httpPostMeasures(const std::string &payload);
   virtual bool mqttConnect();
   virtual bool mqttDisconnect();
   virtual bool mqttPublishMeasures(const std::string &payload);
@@ -32,7 +32,7 @@ public:
   bool isRegisteredOnAgServer();
 
 protected:
-  const char *const domain = "hw.airgradient.com";
+  const char *const httpDomain = "hw.airgradient.com";
   // const char *const mqttDomain = "app-int.airgradient.com";
   const char *const mqttDomain = "128.140.86.189";
   const int mqttPort = 1883;
@@ -72,8 +72,8 @@ protected:
       "TMui9BSwU7B1G2XjdLbfF3Dc67zaSg==\n"
       "-----END CERTIFICATE-----\n";
 
-  std::string buildFetchConfigUrl(const std::string &sn, bool useHttps = false);
-  std::string buildPostMeasuresUrl(const std::string &sn, bool useHttps = false);
+  std::string buildFetchConfigUrl(bool useHttps = false);
+  std::string buildPostMeasuresUrl(bool useHttps = false);
   std::string buildMqttTopicPublishMeasures();
 
   std::string serialNumber;

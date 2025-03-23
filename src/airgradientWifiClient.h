@@ -20,8 +20,8 @@ public:
   AirgradientWifiClient() {};
   ~AirgradientWifiClient() {};
 
-  std::string httpFetchConfig(const std::string &sn);
-  bool httpPostMeasures(const std::string &sn, const std::string &payload);
+  std::string httpFetchConfig();
+  bool httpPostMeasures(const std::string &payload);
 };
 
 #endif // !AIRGRADIENT_WIFI_CLIENT_H

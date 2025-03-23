@@ -30,8 +30,8 @@ public:
 
   bool begin(std::string sn);
   bool ensureClientConnection();
-  std::string httpFetchConfig(const std::string &sn);
-  bool httpPostMeasures(const std::string &sn, const std::string &payload);
+  std::string httpFetchConfig();
+  bool httpPostMeasures(const std::string &payload);
   bool mqttConnect();
   bool mqttDisconnect();
   bool mqttPublishMeasures(const std::string &payload);

@@ -76,8 +76,8 @@ bool AirgradientCellularClient::ensureClientConnection() {
   return true;
 }
 
-std::string AirgradientCellularClient::httpFetchConfig(const std::string &sn) {
-  std::string url = buildFetchConfigUrl(sn);
+std::string AirgradientCellularClient::httpFetchConfig() {
+  std::string url = buildFetchConfigUrl();
 
   ESP_LOGI(TAG, "Fetch configuration from server");
   auto result = cell_->httpGet(url); // TODO: Define timeouts
@@ -122,11 +122,10 @@ std::string AirgradientCellularClient::httpFetchConfig(const std::string &sn) {
   return body;
 }
 
-bool AirgradientCellularClient::httpPostMeasures(const std::string &sn,
-                                                 const std::string &payload) {
-  // std::string url = buildPostMeasuresUrl(sn);
+bool AirgradientCellularClient::httpPostMeasures(const std::string &payload) {
+  // std::string url = buildPostMeasuresUrl();
   char url[80] = {0};
-  sprintf(url, "http://%s/sensors/%s/c-c", domain, sn.c_str());
+  sprintf(url, "http://%s/sensors/%s/c-c", httpDomain, serialNumber.c_str());
 
   ESP_LOGI(TAG, "Post measures to server");
   auto result = cell_->httpPost(url, payload); // TODO: Define timeouts

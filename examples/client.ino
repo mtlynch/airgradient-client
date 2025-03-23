@@ -86,7 +86,7 @@ void setup() {
   Serial.println(WiFi.localIP());
 #endif
 
-  if (!agClient->begin()) {
+  if (!agClient->begin("serialnumber")) {
     Serial.println("Start Airgradient Client FAILED, restarting in 10s");
     delay(10000);
     esp_restart();
