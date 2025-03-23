@@ -6,8 +6,9 @@
  */
 
 #include "airgradientClient.h"
+#include <string>
 
-bool AirgradientClient::begin() { return true; }
+bool AirgradientClient::begin(std::string sn) { return true; }
 
 bool AirgradientClient::ensureClientConnection() { return true; }
 
@@ -16,6 +17,12 @@ std::string AirgradientClient::httpFetchConfig(const std::string &sn) { return s
 bool AirgradientClient::httpPostMeasures(const std::string &sn, const std::string &payload) {
   return false;
 }
+
+bool AirgradientClient::mqttConnect() { return false; }
+
+bool AirgradientClient::mqttDisconnect() { return false; }
+
+bool AirgradientClient::mqttPublishMeasures(const std::string &payload) { return false; }
 
 void AirgradientClient::resetFetchConfigurationStatus() { lastFetchConfigSucceed = true; }
 
@@ -49,4 +56,10 @@ std::string AirgradientClient::buildPostMeasuresUrl(const std::string &sn, bool 
   }
 
   return std::string(url);
+}
+
+std::string AirgradientClient::buildMqttTopicPublishMeasures() {
+  char topic[50] = {0};
+  sprintf(topic, "ag/%s/c-c", serialNumber.c_str());
+  return topic;
 }

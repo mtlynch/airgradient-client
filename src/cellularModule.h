@@ -56,10 +56,14 @@ public:
   virtual CellReturnStatus reinitialize();
   virtual CellResult<HttpResponse> httpGet(const std::string &url, int connectionTimeout = -1,
                                            int responseTimeout = -1);
-  virtual CellResult<HttpResponse>
-  httpPost(const std::string &url, const std::string &body,
-           const std::string &headContentType = "", int connectionTimeout = -1,
-           int responseTimeout = -1);
+  virtual CellResult<HttpResponse> httpPost(const std::string &url, const std::string &body,
+                                            const std::string &headContentType = "",
+                                            int connectionTimeout = -1, int responseTimeout = -1);
+  virtual CellReturnStatus mqttConnect(const std::string &clientId, const std::string &host,
+                                       int port = 1883);
+  virtual CellReturnStatus mqttDisconnect();
+  virtual CellReturnStatus mqttPublish(const std::string &topic, const std::string &payload,
+                                       int qos = 1, int retain = 0, int timeoutS = 15);
 
 private:
   /* data */

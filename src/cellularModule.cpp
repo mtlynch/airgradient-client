@@ -31,7 +31,9 @@ CellResult<int> CellularModule::retrieveSignal() { return CellResult<int>(); }
 
 CellResult<std::string> CellularModule::retrieveIPAddr() { return CellResult<std::string>(); }
 
-CellReturnStatus CellularModule::isNetworkRegistered(CellTechnology ct) { return CellReturnStatus(); }
+CellReturnStatus CellularModule::isNetworkRegistered(CellTechnology ct) {
+  return CellReturnStatus();
+}
 
 CellResult<std::string> CellularModule::startNetworkRegistration(CellTechnology ct,
                                                                  const std::string &apn,
@@ -39,19 +41,28 @@ CellResult<std::string> CellularModule::startNetworkRegistration(CellTechnology 
   return CellResult<std::string>();
 }
 
-CellReturnStatus CellularModule::reinitialize() {
-  return CellReturnStatus();
-}
+CellReturnStatus CellularModule::reinitialize() { return CellReturnStatus(); }
 
 CellResult<CellularModule::HttpResponse>
 CellularModule::httpGet(const std::string &url, int connectionTimeout, int responseTimeout) {
   return CellResult<HttpResponse>();
 }
 
-CellResult<CellularModule::HttpResponse> CellularModule::httpPost(const std::string &url,
-                                                                  const std::string &body,
-                                                                  const std::string &headContentType,
-                                                                  int connectionTimeout,
-                                                                  int responseTimeout) {
+CellResult<CellularModule::HttpResponse>
+CellularModule::httpPost(const std::string &url, const std::string &body,
+                         const std::string &headContentType, int connectionTimeout,
+                         int responseTimeout) {
   return CellResult<HttpResponse>();
+}
+
+CellReturnStatus CellularModule::mqttConnect(const std::string &clientId, const std::string &host,
+                                             int port) {
+  return CellReturnStatus::Error;
+}
+
+CellReturnStatus CellularModule::mqttDisconnect() { return CellReturnStatus::Error; }
+
+CellReturnStatus CellularModule::mqttPublish(const std::string &topic, const std::string &payload,
+                                             int qos, int retain, int timeoutS) {
+  return CellReturnStatus::Error;
 }

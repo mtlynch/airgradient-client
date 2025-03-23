@@ -6,12 +6,15 @@
  */
 
 #include "airgradientCellularClient.h"
-#include "Libraries/airgradient-client/src/cellularModule.h"
+#include "cellularModule.h"
 
 AirgradientCellularClient::AirgradientCellularClient(CellularModule *cellularModule)
     : cell_(cellularModule) {}
 
-bool AirgradientCellularClient::begin() {
+bool AirgradientCellularClient::begin(std::string sn) {
+  // Update parent serialNumber variable
+  serialNumber = sn;
+
   if (!cell_->init()) {
     ESP_LOGE(TAG, "Cannot initialized cellular client");
     return false;
@@ -135,7 +138,8 @@ bool AirgradientCellularClient::httpPostMeasures(const std::string &sn,
   }
 
   // Response status check if post failed
-  if ((result.data.statusCode != 200) && (result.data.statusCode != 429) && (result.data.statusCode != 201)) {
+  if ((result.data.statusCode != 200) && (result.data.statusCode != 429) &&
+      (result.data.statusCode != 201)) {
     ESP_LOGW(TAG, "Failed post measures to server with response code %d", result.data.statusCode);
     lastPostMeasuresSucceed = false;
     return false;
@@ -143,6 +147,40 @@ bool AirgradientCellularClient::httpPostMeasures(const std::string &sn,
 
   lastPostMeasuresSucceed = true;
   ESP_LOGI(TAG, "Success post measures to server with response code %d", result.data.statusCode);
+
+  return true;
+}
+
+bool AirgradientCellularClient::mqttConnect() {
+  auto result = cell_->mqttConnect(serialNumber, mqttDomain, mqttPort);
+  if (result != CellReturnStatus::Ok) {
+    ESP_LOGE(TAG, "Failed connect to airgradient mqtt server");
+    return false;
+  }
+  ESP_LOGI(TAG, "Success connect to airgardient mqtt server");
+
+  return true;
+}
+
+bool AirgradientCellularClient::mqttDisconnect() {
+  if (cell_->mqttDisconnect() != CellReturnStatus::Ok) {
+    ESP_LOGE(TAG, "Failed disconnect from airgradient mqtt server");
+    return false;
+  }
+  ESP_LOGI(TAG, "Success disconnect from airgradient mqtt server");
+
+  return true;
+}
+
+bool AirgradientCellularClient::mqttPublishMeasures(const std::string &payload) {
+  // TODO: Ensure mqtt connection
+  auto topic = buildMqttTopicPublishMeasures();
+  auto result = cell_->mqttPublish(topic, payload);
+  if (result != CellReturnStatus::Ok) {
+    ESP_LOGE(TAG, "Failed publish measures to mqtt server");
+    return false;
+  }
+  ESP_LOGI(TAG, "Success publish measures to mqtt server");
 
   return true;
 }

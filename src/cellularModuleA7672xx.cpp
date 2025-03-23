@@ -6,7 +6,9 @@
  */
 
 #include "cellularModuleA7672xx.h"
-#include "Libraries/airgradient-client/src/cellularModule.h"
+#include "cellularModule.h"
+#include "atCommandHandler.h"
+#include "cellularModule.h"
 #include "common.h"
 #include <cstdint>
 #include <memory>
@@ -448,7 +450,7 @@ CellularModuleA7672XX::httpGet(const std::string &url, int connectionTimeout, in
       offset = offset + HTTPREAD_CHUNK_SIZE;
 
     } while (offset < bodyLen); // TODO: Add timeout?
-    
+
     // Check if all response body data received
     if (offset < bodyLen) {
       ESP_LOGE(TAG, "Failed to retrieve all response body data from module");
@@ -485,15 +487,14 @@ CellularModuleA7672XX::httpGet(const std::string &url, int connectionTimeout, in
 
 CellResult<CellularModule::HttpResponse>
 CellularModuleA7672XX::httpPost(const std::string &url, const std::string &body,
-                                const std::string &headContentType,
-                                int connectionTimeout, int responseTimeout) {
+                                const std::string &headContentType, int connectionTimeout,
+                                int responseTimeout) {
 
   CellResult<CellularModule::HttpResponse> result;
   result.status = CellReturnStatus::Error;
   ATCommandHandler::Response response;
 
   // TODO: Sanity check Registration Status?
-
 
   // +HTTPINIT
   result.status = _httpInit();
@@ -582,6 +583,180 @@ CellularModuleA7672XX::httpPost(const std::string &url, const std::string &body,
 
   result.status = CellReturnStatus::Ok;
   return result;
+}
+
+CellReturnStatus CellularModuleA7672XX::mqttConnect(const std::string &clientId,
+                                                    const std::string &host, int port) {
+  char buf[150] = {0};
+  std::string result;
+
+  // +CMQTTSTART
+  at_->sendAT("+CMQTTSTART");
+  auto atResult = at_->waitResponse(12000, "+CMQTTSTART:");
+  if (atResult == ATCommandHandler::Timeout || atResult == ATCommandHandler::CMxError) {
+    ESP_LOGW(TAG, "Timeout wait for +CMQTTSTART response");
+    return CellReturnStatus::Timeout;
+  } else if (atResult == ATCommandHandler::ExpArg1) {
+    // +CMQTTSTART response received as arg1
+    // Get value of CMQTTSTART, expected is 0
+    if (at_->waitAndRecvRespLine(result) == -1) {
+      return CellReturnStatus::Timeout;
+    }
+    if (result != "0") {
+      // Failed to start
+      ESP_LOGE(TAG, "CMQTTSTART failed with value %s", result.c_str());
+      return CellReturnStatus::Error;
+    }
+    // CMQTTSTART ok
+  } else if (atResult == ATCommandHandler::ExpArg2) {
+    // Here it return error, but based on the document module MQTT context already started
+    // Do nothing
+    ESP_LOGI(TAG, "+CMQTTSTART return error, which means mqtt context already started");
+  }
+
+  // +CMQTTACCQ
+  sprintf(buf, "+CMQTTACCQ=0,\"%s\",0", clientId.c_str());
+  at_->sendAT(buf);
+  if (at_->waitResponse() != ATCommandHandler::ExpArg1) {
+    // ERROR or TIMEOUT, doesn't matter
+    return CellReturnStatus::Error;
+  }
+
+  DELAY_MS(3000);
+
+  // +CMQTTCONNECT
+  // keep alive 120; cleansession 1
+  memset(buf, 0, 150);
+  sprintf(buf, "+CMQTTCONNECT=0,\"tcp://%s:%d\",120,1", host.c_str(), port);
+  at_->sendAT(buf);
+  if (at_->waitResponse(30000, "+CMQTTCONNECT: 0,") != ATCommandHandler::ExpArg1) {
+    at_->clearBuffer();
+    return CellReturnStatus::Ok;
+  }
+
+  if (at_->waitAndRecvRespLine(result) == -1) {
+    return CellReturnStatus::Timeout;
+  }
+
+  // If result not 0, then error occur
+  if (result != "0") {
+    ESP_LOGE(TAG, "+CMQTTCONNECT error result: %s", result.c_str());
+    return CellReturnStatus::Error;
+  }
+  at_->clearBuffer();
+
+  return CellReturnStatus::Ok;
+}
+
+CellReturnStatus CellularModuleA7672XX::mqttDisconnect() {
+  std::string result;
+  // +CMQTTDISC
+  at_->sendAT("+CMQTTDISC=0,60"); // Timeout 60s
+  /// wait +CMTTDISC until client_index
+  if (at_->waitResponse(60000, "+CMQTTDISC: 0,") != ATCommandHandler::ExpArg1) {
+    at_->clearBuffer();
+    // Error or timeout
+    return CellReturnStatus::Error;
+  }
+
+  if (at_->waitAndRecvRespLine(result) == -1) {
+    return CellReturnStatus::Timeout;
+  }
+
+  if (result != "0") {
+    ESP_LOGE(TAG, "+CMQTTDISC error result: %s", result.c_str());
+    return CellReturnStatus::Error;
+  }
+  at_->clearBuffer();
+
+  // +CMQTTREL
+  at_->sendAT("+CMQTTREL=0");
+  if (at_->waitResponse() != ATCommandHandler::ExpArg1) {
+    // Ignore response err code
+    at_->clearBuffer();
+    return CellReturnStatus::Error;
+  }
+  at_->clearBuffer();
+
+  // +CMQTTSTOP
+  at_->sendAT("+CMQTTSTOP");
+  if (at_->waitResponse() != ATCommandHandler::ExpArg1) {
+    // Ignore response err code
+    return CellReturnStatus::Error;
+  }
+  at_->clearBuffer();
+
+  return CellReturnStatus::Ok;
+}
+
+CellReturnStatus CellularModuleA7672XX::mqttPublish(const std::string &topic,
+                                                    const std::string &payload, int qos, int retain,
+                                                    int timeoutS) {
+
+  char buf[50] = {0};
+  std::string result;
+
+  // +CMQTTTOPIC
+  sprintf(buf, "+CMQTTTOPIC=0,%d", topic.length());
+  at_->sendAT(buf);
+  if (at_->waitResponse(">") != ATCommandHandler::ExpArg1) {
+    // Either timeout wait for expected response or return ERROR
+    ESP_LOGW(TAG, "Error +CMQTTTOPIC wait for \">\" response");
+    return CellReturnStatus::Error;
+  }
+
+  ESP_LOGI(TAG, "Receive \">\" event, adding topic");
+  at_->sendRaw(topic.c_str());
+  // Wait for 'OK' after send topic
+  if (at_->waitResponse() != ATCommandHandler::ExpArg1) {
+    // Timeout wait "OK"
+    ESP_LOGW(TAG, "Error +CMQTTTOPIC wait for \"OK\" response");
+    return CellReturnStatus::Error;
+  }
+
+  // +CMQTTPAYLOAD
+  memset(buf, 0, 50);
+  sprintf(buf, "+CMQTTPAYLOAD=0,%d", payload.length());
+  at_->sendAT(buf);
+  if (at_->waitResponse(">") != ATCommandHandler::ExpArg1) {
+    // Either timeout wait for expected response or return ERROR
+    ESP_LOGW(TAG, "Error +CMQTTPAYLOAD wait for \">\" response");
+    return CellReturnStatus::Error;
+  }
+
+  ESP_LOGI(TAG, "Receive \">\" event, adding payload");
+  at_->sendRaw(payload.c_str());
+  // Wait for 'OK' after send payload
+  if (at_->waitResponse() != ATCommandHandler::ExpArg1) {
+    // Timeout wait "OK"
+    ESP_LOGW(TAG, "Error +CMQTTPAYLOAD wait for \"OK\" response");
+    return CellReturnStatus::Error;
+  }
+
+  memset(buf, 0, 50);
+  sprintf(buf, "+CMQTTPUB=0,%d,%d,%d", qos, timeoutS, retain);
+  int timeoutMs = timeoutS * 1000;
+  at_->sendAT(buf);
+  if (at_->waitResponse(timeoutMs, "+CMQTTPUB: 0,") != ATCommandHandler::ExpArg1) {
+    ESP_LOGW(TAG, "+CMQTTPUBLISH error");
+    return CellReturnStatus::Error;
+  }
+
+  // Retrieve the value
+  if (at_->waitAndRecvRespLine(result) == -1) {
+    ESP_LOGW(TAG, "+CMQTTPUB retrieve value timeout");
+    return CellReturnStatus::Timeout;
+  }
+
+  if (result != "0") {
+    ESP_LOGE(TAG, "Failed +CMQTTPUB with value %s", result.c_str());
+    return CellReturnStatus::Error;
+  }
+
+  // Make sure buffer clean
+  at_->clearBuffer();
+
+  return CellReturnStatus::Ok;
 }
 
 CellularModuleA7672XX::NetworkRegistrationState CellularModuleA7672XX::_implCheckModuleReady() {

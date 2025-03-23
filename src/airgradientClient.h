@@ -12,15 +12,17 @@
 
 class AirgradientClient {
 private:
-
 public:
   AirgradientClient() {};
   virtual ~AirgradientClient() {};
 
-  virtual bool begin();
+  virtual bool begin(std::string sn);
   virtual bool ensureClientConnection();
   virtual std::string httpFetchConfig(const std::string &sn);
   virtual bool httpPostMeasures(const std::string &sn, const std::string &payload);
+  virtual bool mqttConnect();
+  virtual bool mqttDisconnect();
+  virtual bool mqttPublishMeasures(const std::string &payload);
 
   // Implemented on base class, not override function
   void resetFetchConfigurationStatus();
@@ -31,6 +33,9 @@ public:
 
 protected:
   const char *const domain = "hw.airgradient.com";
+  // const char *const mqttDomain = "app-int.airgradient.com";
+  const char *const mqttDomain = "128.140.86.189";
+  const int mqttPort = 1883;
   const char *const AG_SERVER_ROOT_CA =
       "-----BEGIN CERTIFICATE-----\n"
       "MIIF4jCCA8oCCQD7MgvcaVWxkTANBgkqhkiG9w0BAQsFADCBsjELMAkGA1UEBhMC\n"
@@ -69,7 +74,9 @@ protected:
 
   std::string buildFetchConfigUrl(const std::string &sn, bool useHttps = false);
   std::string buildPostMeasuresUrl(const std::string &sn, bool useHttps = false);
+  std::string buildMqttTopicPublishMeasures();
 
+  std::string serialNumber;
   bool lastPostMeasuresSucceed = true;
   bool lastFetchConfigSucceed = true;
   bool registeredOnAgServer = true;

@@ -72,10 +72,15 @@ public:
   CellReturnStatus reinitialize();
   CellResult<CellularModule::HttpResponse>
   httpGet(const std::string &url, int connectionTimeout = -1, int responseTimeout = -1);
-  CellResult<CellularModule::HttpResponse>
-  httpPost(const std::string &url, const std::string &body,
-           const std::string &headContentType = "", int connectionTimeout = -1,
-           int responseTimeout = -1);
+  CellResult<CellularModule::HttpResponse> httpPost(const std::string &url, const std::string &body,
+                                                    const std::string &headContentType = "",
+                                                    int connectionTimeout = -1,
+                                                    int responseTimeout = -1);
+  CellReturnStatus mqttConnect(const std::string &clientId, const std::string &host,
+                               int port = 1883);
+  CellReturnStatus mqttDisconnect();
+  CellReturnStatus mqttPublish(const std::string &topic, const std::string &payload, int qos = 1,
+                               int retain = 0, int timeoutS = 15);
 
 private:
   const int DEFAULT_HTTP_CONNECT_TIMEOUT = 120; // seconds
@@ -113,8 +118,10 @@ private:
   /**
    * @brief Calculate timeout in ms to wait +HTTPACTION request finish
    *
-   * @param connectionTimeout connectionTimeout provided when call http request in seconds
-   * @param responseTimeout responseTimeout provided when call http request in seconds
+   * @param connectionTimeout connectionTimeout provided when call http request
+   * in seconds
+   * @param responseTimeout responseTimeout provided when call http request in
+   * seconds
    * @return int total time in ms to wait for +HTTPACTION
    */
   int _calculateResponseTimeout(int connectionTimeout, int responseTimeout);
