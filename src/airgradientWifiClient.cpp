@@ -15,6 +15,11 @@
 #include <HTTPClient.h>
 #endif
 
+bool AirgradientWifiClient::begin(std::string sn) {
+  serialNumber = sn;
+  return true;
+}
+
 std::string AirgradientWifiClient::httpFetchConfig() {
   Serial.println("Fetch configuration from server");
   std::string url = buildFetchConfigUrl(true);
