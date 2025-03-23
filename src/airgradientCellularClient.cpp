@@ -14,6 +14,7 @@ AirgradientCellularClient::AirgradientCellularClient(CellularModule *cellularMod
 bool AirgradientCellularClient::begin(std::string sn) {
   // Update parent serialNumber variable
   serialNumber = sn;
+  clientReady = false;
 
   if (!cell_->init()) {
     ESP_LOGE(TAG, "Cannot initialized cellular client");
@@ -43,24 +44,29 @@ bool AirgradientCellularClient::begin(std::string sn) {
   }
 
   ESP_LOGI(TAG, "Cellular client ready, module registered to network");
+  clientReady = true;
+
   return true;
 }
 
 bool AirgradientCellularClient::ensureClientConnection() {
   if (cell_->isNetworkRegistered(CellTechnology::LTE) == CellReturnStatus::Ok) {
     ESP_LOGI(TAG, "Client connection is OK");
+    clientReady = true;
     return true;
   }
 
   ESP_LOGE(TAG, "Network not registered! Power cycle module and restart network registration");
   if (cell_->reinitialize() != CellReturnStatus::Ok) {
     ESP_LOGE(TAG, "Failed reinitialized cellular module");
+    clientReady = false;
     return false;
   }
 
   // To make sure module ready to use
   if (cell_->isSimReady() != CellReturnStatus::Ok) {
     ESP_LOGE(TAG, "SIM is not ready, please check if SIM is inserted properly!");
+    clientReady = false;
     return false;
   }
 
@@ -68,9 +74,11 @@ bool AirgradientCellularClient::ensureClientConnection() {
   auto result = cell_->startNetworkRegistration(CellTechnology::LTE, _apn, 30000);
   if (result.status != CellReturnStatus::Ok) {
     ESP_LOGE(TAG, "Cellular client failed, module cannot register to network");
+    clientReady = false;
     return false;
   }
 
+  clientReady = true;
   ESP_LOGI(TAG, "Cellular client ready, module registered to network");
 
   return true;

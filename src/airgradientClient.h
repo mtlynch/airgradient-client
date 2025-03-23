@@ -25,6 +25,7 @@ public:
   virtual bool mqttPublishMeasures(const std::string &payload);
 
   // Implemented on base class, not override function
+  bool isClientReady();
   void resetFetchConfigurationStatus();
   void resetPostMeasuresStatus();
   bool isLastFetchConfigSucceed();
@@ -80,5 +81,6 @@ protected:
   bool lastPostMeasuresSucceed = true;
   bool lastFetchConfigSucceed = true;
   bool registeredOnAgServer = true;
+  bool clientReady = true;
 };
 #endif // AIRGRADIENT_CLIENT_H
