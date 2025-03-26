@@ -8,6 +8,8 @@
 #ifndef AT_COMMAND_HANDLER_H
 #define AT_COMMAND_HANDLER_H
 
+#ifndef ESP8266
+
 #include <cstdint>
 #include <string>
 
@@ -182,4 +184,5 @@ private:
   char _buffer[DEFAULT_BUFFER_ALLOC];
 };
 
+#endif // ESP8266
 #endif // AT_COMMAND_HANDLER_H

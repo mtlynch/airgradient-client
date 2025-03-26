@@ -8,10 +8,14 @@
 #ifndef AIRGRADIENT_CELLULAR_CLIENT_H
 #define AIRGRADIENT_CELLULAR_CLIENT_H
 
+#ifndef ESP8266
+
 #include <string>
 
+#ifdef ARDUINO
 //! Somehow if compile using pio and not include this. esp_log not come out.
 #include <Arduino.h>
+#endif
 
 #include "esp_log.h"
 
@@ -37,4 +41,5 @@ public:
   bool mqttPublishMeasures(const std::string &payload);
 };
 
+#endif // ESP8266
 #endif // AIRGRADIENT_CELLULAR_CLIENT_H

@@ -5,6 +5,8 @@
  * CC BY-SA 4.0 Attribution-ShareAlike 4.0 International License
  */
 
+#ifndef ESP8266
+
 #include "cellularModuleA7672xx.h"
 #include "cellularModule.h"
 #include "atCommandHandler.h"
@@ -1244,3 +1246,5 @@ int CellularModuleA7672XX::_calculateResponseTimeout(int connectionTimeout, int 
 
   return waitActionTimeout;
 }
+
+#endif // ESP8266

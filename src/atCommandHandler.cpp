@@ -5,6 +5,8 @@
  * CC BY-SA 4.0 Attribution-ShareAlike 4.0 International License
  */
 
+#ifndef ESP8266
+
 #include "atCommandHandler.h"
 
 #define AT_YIELD()                                                                                 \
@@ -196,3 +198,5 @@ bool ATCommandHandler::_endsWith(const char *str, const char *target) {
 
   return strncmp(str + lenStr - lenTarget, target, lenTarget) == 0;
 }
+
+#endif // ESP8266

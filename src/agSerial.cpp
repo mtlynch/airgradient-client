@@ -5,6 +5,8 @@
  * CC BY-SA 4.0 Attribution-ShareAlike 4.0 International License
  */
 
+#ifndef ESP8266
+
 #include "agSerial.h"
 
 #define MAX_RETRY_IICSERIAL_UART_INIT 3
@@ -92,3 +94,5 @@ uint8_t AgSerial::read() {
   return iicSerial_->read();
 #endif
 }
+
+#endif // ESP8266

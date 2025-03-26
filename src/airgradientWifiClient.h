@@ -8,6 +8,9 @@
 #ifndef AIRGRADIENT_WIFI_CLIENT_H
 #define AIRGRADIENT_WIFI_CLIENT_H
 
+#ifdef ARDUINO
+#ifndef ESP8266
+
 #include <string>
 
 #include "airgradientClient.h"
@@ -25,4 +28,6 @@ public:
   bool httpPostMeasures(const std::string &payload);
 };
 
+#endif // ESP8266
+#endif // ARDUINO
 #endif // !AIRGRADIENT_WIFI_CLIENT_H

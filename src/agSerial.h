@@ -8,6 +8,8 @@
 #ifndef AIRGRADIENT_SERIAL_H
 #define AIRGRADIENT_SERIAL_H
 
+#ifndef ESP8266
+
 #include "driver/gpio.h"
 
 #include "Wire.h"
@@ -37,4 +39,5 @@ public:
   uint8_t read();
 };
 
+#endif // ESP8266
 #endif // AIRGRADIENT_SERIAL_H

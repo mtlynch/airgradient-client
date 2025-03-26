@@ -8,6 +8,8 @@
 #ifndef CELLULAR_MODULE_A7672XX_H
 #define CELLULAR_MODULE_A7672XX_H
 
+#ifndef ESP8266
+
 #include <string>
 
 #include "driver/gpio.h"
@@ -127,4 +129,5 @@ private:
   int _calculateResponseTimeout(int connectionTimeout, int responseTimeout);
 };
 
+#endif // ESP8266
 #endif // CELLULAR_MODULE_A7672XX_H

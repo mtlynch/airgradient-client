@@ -5,6 +5,8 @@
  * CC BY-SA 4.0 Attribution-ShareAlike 4.0 International License
  */
 
+#ifndef ESP8266
+
 #include "airgradientCellularClient.h"
 #include "cellularModule.h"
 
@@ -192,3 +194,5 @@ bool AirgradientCellularClient::mqttPublishMeasures(const std::string &payload) 
 
   return true;
 }
+
+#endif // ESP8266
