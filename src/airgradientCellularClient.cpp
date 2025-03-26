@@ -86,8 +86,8 @@ bool AirgradientCellularClient::ensureClientConnection() {
 
 std::string AirgradientCellularClient::httpFetchConfig() {
   std::string url = buildFetchConfigUrl();
+  ESP_LOGI(TAG, "Fetch configuration from %s", url.c_str());
 
-  ESP_LOGI(TAG, "Fetch configuration from server");
   auto result = cell_->httpGet(url); // TODO: Define timeouts
   if (result.status != CellReturnStatus::Ok) {
     // TODO: This can be timeout from module or error, how to handle this?
@@ -133,9 +133,10 @@ std::string AirgradientCellularClient::httpFetchConfig() {
 bool AirgradientCellularClient::httpPostMeasures(const std::string &payload) {
   // std::string url = buildPostMeasuresUrl();
   char url[80] = {0};
-  sprintf(url, "http://%s/sensors/%s/c-c", httpDomain, serialNumber.c_str());
+  sprintf(url, "http://%s/sensors/%s/cti", httpDomain, serialNumber.c_str());
+  ESP_LOGI(TAG, "Post measures to %s", url);
+  ESP_LOGI(TAG, "Payload: %s", payload.c_str());
 
-  ESP_LOGI(TAG, "Post measures to server");
   auto result = cell_->httpPost(url, payload); // TODO: Define timeouts
   if (result.status != CellReturnStatus::Ok) {
     // TODO: This can be timeout from module or error, how to handle this?
