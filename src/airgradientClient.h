@@ -26,6 +26,7 @@ public:
 
   // Implemented on base class, not override function
   bool isClientReady();
+  void setClientReady(bool isReady);
   void resetFetchConfigurationStatus();
   void resetPostMeasuresStatus();
   bool isLastFetchConfigSucceed();

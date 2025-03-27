@@ -92,11 +92,14 @@ std::string AirgradientCellularClient::httpFetchConfig() {
 
   auto result = cell_->httpGet(url); // TODO: Define timeouts
   if (result.status != CellReturnStatus::Ok) {
-    // TODO: This can be timeout from module or error, how to handle this?
     ESP_LOGE(TAG, "Module not return OK when call httpGet()");
     lastFetchConfigSucceed = false;
+    clientReady = false;
     return {};
   }
+
+  // Reset client ready state
+  clientReady = true;
 
   // Response status check if fetch failed
   if (result.data.statusCode != 200) {
@@ -141,11 +144,14 @@ bool AirgradientCellularClient::httpPostMeasures(const std::string &payload) {
 
   auto result = cell_->httpPost(url, payload); // TODO: Define timeouts
   if (result.status != CellReturnStatus::Ok) {
-    // TODO: This can be timeout from module or error, how to handle this?
     ESP_LOGE(TAG, "Module not return OK when call httpPost()");
     lastPostMeasuresSucceed = false;
+    clientReady = false;
     return false;
   }
+
+  // Reset client ready state
+  clientReady = true;
 
   // Response status check if post failed
   if ((result.data.statusCode != 200) && (result.data.statusCode != 429) &&
