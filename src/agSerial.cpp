@@ -76,23 +76,25 @@ void AgSerial::close() {
   // TODO: prepare sleep?
 }
 
+void AgSerial::setDebug(bool enable) { _debug = enable; }
+
 bool AgSerial::available() { return (iicSerial_->available() > 0); }
 
 void AgSerial::print(const char *str) {
-#ifdef AGSERIAL_DEBUG
-  Serial.print(str); // TODO: Change to idf compatiblee
-#endif
+  if (_debug) {
+    Serial.print(str); // TODO: Change to idf compatiblee
+  }
   iicSerial_->print(str);
 }
 
 uint8_t AgSerial::read() {
-#ifdef AGSERIAL_DEBUG
-  char b = iicSerial_->read();
-  Serial.write(b); // TODO: Change to idf compatiblee
-  return b;
-#else
+  if (_debug) {
+    char b = iicSerial_->read();
+    Serial.write(b); // TODO: Change to idf compatiblee
+    return b;
+  }
+
   return iicSerial_->read();
-#endif
 }
 
 #endif // ESP8266

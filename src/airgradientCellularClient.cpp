@@ -39,7 +39,7 @@ bool AirgradientCellularClient::begin(std::string sn) {
   ESP_LOGI(TAG, "SIM CCID: %s", result.data.c_str());
 
   // Register network
-  result = cell_->startNetworkRegistration(CellTechnology::LTE, _apn, 30000);
+  result = cell_->startNetworkRegistration(CellTechnology::LTE, _apn, (5 * 60000));
   if (result.status != CellReturnStatus::Ok) {
     ESP_LOGE(TAG, "Cellular client failed, module cannot register to network");
     return false;
