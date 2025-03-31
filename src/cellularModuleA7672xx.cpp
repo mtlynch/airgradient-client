@@ -826,6 +826,14 @@ CellularModuleA7672XX::NetworkRegistrationState CellularModuleA7672XX::_implEnsu
 }
 
 CellularModuleA7672XX::NetworkRegistrationState CellularModuleA7672XX::_implConfigureNetwork() {
+  CellResult<int> result = retrieveSignal();
+  if (result.status == CellReturnStatus::Timeout) {
+    // Go back to check module ready
+    return CHECK_MODULE_READY;
+  }
+
+  ESP_LOGI(TAG, "Cellular signal: %d", result.data);
+
   CellReturnStatus crs = _checkOperatorSelection();
   if (crs == CellReturnStatus::Timeout) {
     // Go back to check module ready
