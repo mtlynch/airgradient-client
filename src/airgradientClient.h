@@ -10,6 +10,8 @@
 
 #include <string>
 
+#define AIRGRADIENT_HTTP_DOMAIN "hw.airgradient.com"
+
 class AirgradientClient {
 private:
 public:
@@ -25,6 +27,15 @@ public:
   virtual bool mqttPublishMeasures(const std::string &payload);
 
   // Implemented on base class, not override function
+ 
+
+  /**
+  * @brief set http url domain for http request. Eg: hw.airgradient.com
+  *
+  * @param target target domain that will be used
+  */
+  void setHttpDomain(const std::string &target);
+  void setHttpDomainDefault();
   bool isClientReady();
   void setClientReady(bool isReady);
   void resetFetchConfigurationStatus();
@@ -34,8 +45,7 @@ public:
   bool isRegisteredOnAgServer();
 
 protected:
-  const char *const httpDomain = "hw.airgradient.com";
-  // const char *const mqttDomain = "app-int.airgradient.com";
+  std::string httpDomain = AIRGRADIENT_HTTP_DOMAIN;
   const char *const mqttDomain = "128.140.86.189";
   const int mqttPort = 1883;
   const char *const AG_SERVER_ROOT_CA =

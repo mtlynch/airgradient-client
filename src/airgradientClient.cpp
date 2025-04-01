@@ -12,6 +12,14 @@ bool AirgradientClient::begin(std::string sn) { return true; }
 
 bool AirgradientClient::ensureClientConnection() { return true; }
 
+void AirgradientClient::setHttpDomain(const std::string &target) {
+  httpDomain = target;
+}
+
+void AirgradientClient::setHttpDomainDefault() {
+  httpDomain = AIRGRADIENT_HTTP_DOMAIN;
+}
+
 bool AirgradientClient::isClientReady() { return clientReady; }
 
 void AirgradientClient::setClientReady(bool isReady) { clientReady = isReady; }
@@ -40,9 +48,9 @@ std::string AirgradientClient::buildFetchConfigUrl(bool useHttps) {
   // http://hw.airgradient.com/sensors/airgradient:aabbccddeeff/one/config
   char url[80] = {0};
   if (useHttps) {
-    sprintf(url, "https://%s/sensors/airgradient:%s/one/config", httpDomain, serialNumber.c_str());
+    sprintf(url, "https://%s/sensors/airgradient:%s/one/config", httpDomain.c_str(), serialNumber.c_str());
   } else {
-    sprintf(url, "http://%s/sensors/airgradient:%s/one/config", httpDomain, serialNumber.c_str());
+    sprintf(url, "http://%s/sensors/airgradient:%s/one/config", httpDomain.c_str(), serialNumber.c_str());
   }
 
   return std::string(url);
@@ -52,9 +60,9 @@ std::string AirgradientClient::buildPostMeasuresUrl(bool useHttps) {
   // http://hw.airgradient.com/sensors/airgradient:aabbccddeeff/measures
   char url[80] = {0};
   if (useHttps) {
-    sprintf(url, "https://%s/sensors/airgradient:%s/measures", httpDomain, serialNumber.c_str());
+    sprintf(url, "https://%s/sensors/airgradient:%s/measures", httpDomain.c_str(), serialNumber.c_str());
   } else {
-    sprintf(url, "http://%s/sensors/airgradient:%s/measures", httpDomain, serialNumber.c_str());
+    sprintf(url, "http://%s/sensors/airgradient:%s/measures", httpDomain.c_str(), serialNumber.c_str());
   }
 
   return std::string(url);

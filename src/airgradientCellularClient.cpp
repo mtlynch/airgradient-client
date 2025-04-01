@@ -138,7 +138,7 @@ std::string AirgradientCellularClient::httpFetchConfig() {
 bool AirgradientCellularClient::httpPostMeasures(const std::string &payload) {
   // std::string url = buildPostMeasuresUrl();
   char url[80] = {0};
-  sprintf(url, "http://%s/sensors/%s/cti", httpDomain, serialNumber.c_str());
+  sprintf(url, "http://%s/sensors/%s/cti", httpDomain.c_str(), serialNumber.c_str());
   ESP_LOGI(TAG, "Post measures to %s", url);
   ESP_LOGI(TAG, "Payload: %s", payload.c_str());
 
