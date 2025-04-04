@@ -52,13 +52,7 @@ bool AirgradientCellularClient::begin(std::string sn) {
 }
 
 bool AirgradientCellularClient::ensureClientConnection() {
-  if (cell_->isNetworkRegistered(CellTechnology::LTE) == CellReturnStatus::Ok) {
-    ESP_LOGI(TAG, "Client connection is OK");
-    clientReady = true;
-    return true;
-  }
-
-  ESP_LOGE(TAG, "Network not registered! Power cycle module and restart network registration");
+  ESP_LOGE(TAG, "Ensuring client connection! Power cycle module and restart network registration");
   if (cell_->reinitialize() != CellReturnStatus::Ok) {
     ESP_LOGE(TAG, "Failed reinitialized cellular module");
     clientReady = false;
