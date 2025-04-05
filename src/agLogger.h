@@ -24,31 +24,31 @@
 #include <Arduino.h>
 
 #if AG_LOG_LEVEL >= AG_LOG_LEVEL_ERROR
-    #define AG_LOGE(tag, fmt, ...) Serial.printf("[E] [%s]: " fmt "\n", tag, ##__VA_ARGS__)
+    #define AG_LOGE(tag, fmt, ...) Serial.printf("[%s] Error: " fmt "\n", tag, ##__VA_ARGS__)
   #else
     #define AG_LOGE(tag, fmt, ...)
   #endif
 
   #if AG_LOG_LEVEL >= AG_LOG_LEVEL_WARN
-    #define AG_LOGW(tag, fmt, ...) Serial.printf("[W] [%s]: " fmt "\n", tag, ##__VA_ARGS__)
+    #define AG_LOGW(tag, fmt, ...) Serial.printf("[%s] Warning: " fmt "\n", tag, ##__VA_ARGS__)
   #else
     #define AG_LOGW(tag, fmt, ...)
   #endif
 
   #if AG_LOG_LEVEL >= AG_LOG_LEVEL_INFO
-    #define AG_LOGI(tag, fmt, ...) Serial.printf("[I] [%s]: " fmt "\n", tag, ##__VA_ARGS__)
+    #define AG_LOGI(tag, fmt, ...) Serial.printf("[%s] Info: " fmt "\n", tag, ##__VA_ARGS__)
   #else
     #define AG_LOGI(tag, fmt, ...)
   #endif
 
   #if AG_LOG_LEVEL >= AG_LOG_LEVEL_DEBUG
-    #define AG_LOGD(tag, fmt, ...) Serial.printf("[D] [%s]: " fmt "\n", tag, ##__VA_ARGS__)
+    #define AG_LOGD(tag, fmt, ...) Serial.printf("[%s] Debug: " fmt "\n", tag, ##__VA_ARGS__)
   #else
     #define AG_LOGD(tag, fmt, ...)
   #endif
 
   #if AG_LOG_LEVEL >= AG_LOG_LEVEL_VERBOSE
-    #define AG_LOGV(tag, fmt, ...) Serial.printf("[V] [%s]: " fmt "\n", tag, ##__VA_ARGS__)
+    #define AG_LOGV(tag, fmt, ...) Serial.printf("[%s] Verbose: " fmt "\n", tag, ##__VA_ARGS__)
   #else
     #define AG_LOGV(tag, fmt, ...)
   #endif
