@@ -65,6 +65,18 @@ public:
   virtual CellReturnStatus mqttPublish(const std::string &topic, const std::string &payload,
                                        int qos = 1, int retain = 0, int timeoutS = 15);
 
+  // Generic functions
+
+  /**
+   * @brief convert cellular csq command (signal quality) to RSSI in dbm
+   *
+   * @param csq signal quality indicator to convert
+   *
+   * @return RSSI in dbm
+   * @return 0 if signal quality indicator is invalid
+   */
+  int csqToDbm(int csq);
+
 private:
   /* data */
 };

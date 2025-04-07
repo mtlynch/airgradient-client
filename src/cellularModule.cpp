@@ -66,3 +66,25 @@ CellReturnStatus CellularModule::mqttPublish(const std::string &topic, const std
                                              int qos, int retain, int timeoutS) {
   return CellReturnStatus::Error;
 }
+
+int CellularModule::csqToDbm(int csq) {
+  if (csq == 99) {
+    // Unknown or undetectable
+    return 0; // invalid value indication
+  }
+  if (csq == 0) {
+    return -113;
+  }
+  if (csq == 1) {
+    return -111;
+  }
+  if (csq >= 2 && csq <= 30) {
+    return -109 + 2 * (csq - 2);
+  }
+  if (csq == 31) {
+    return -51;
+  }
+
+  // invalid value indication
+  return 0;
+}
