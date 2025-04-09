@@ -15,7 +15,7 @@ bool CellularModule::init() { return false; }
 
 void CellularModule::powerOn() {}
 
-void CellularModule::powerOff() {}
+void CellularModule::powerOff(bool force) {}
 
 bool CellularModule::reset() { return true; }
 

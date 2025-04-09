@@ -58,7 +58,7 @@ public:
 
   bool init();
   void powerOn();
-  void powerOff();
+  void powerOff(bool force);
   bool reset();
   void sleep();
   CellResult<std::string> getModuleInfo();

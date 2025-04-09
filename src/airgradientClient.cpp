@@ -6,11 +6,12 @@
  */
 
 #include "airgradientClient.h"
+#include "common.h"
 #include <string>
 
 bool AirgradientClient::begin(std::string sn) { return true; }
 
-bool AirgradientClient::ensureClientConnection() { return true; }
+bool AirgradientClient::ensureClientConnection(bool reset) { return true; }
 
 void AirgradientClient::setHttpDomain(const std::string &target) {
   httpDomain = target;

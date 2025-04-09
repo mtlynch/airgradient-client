@@ -89,7 +89,16 @@ void CellularModuleA7672XX::powerOn() {
   DELAY_MS(100);
 }
 
-void CellularModuleA7672XX::powerOff() {
+void CellularModuleA7672XX::powerOff(bool force) {
+  if (force) {
+    // Force power off
+    AG_LOGW(TAG, "Force module to power off");
+    gpio_set_level(_powerIO, 1);
+    DELAY_MS(1300);
+    gpio_set_level(_powerIO, 0);
+    return;
+  }
+
   at_->sendAT("+CPOF");
   if (at_->waitResponse() != ATCommandHandler::ExpArg1) {
     // Force power off
@@ -336,11 +345,6 @@ CellularModuleA7672XX::startNetworkRegistration(CellTechnology ct, const std::st
 }
 
 CellReturnStatus CellularModuleA7672XX::reinitialize() {
-  AG_LOGI(TAG, "Power cycling module");
-  powerOff();
-  DELAY_MS(1000);
-  powerOn();
-
   AG_LOGI(TAG, "Initialize module");
   if (!at_->testAT()) {
     AG_LOGW(TAG, "Failed wait cellular module to ready");

@@ -5,6 +5,8 @@
  * CC BY-SA 4.0 Attribution-ShareAlike 4.0 International License
  */
 
+#ifndef ESP8266
+
 #ifndef AG_COMMON_H
 #define AG_COMMON_H
 
@@ -29,3 +31,4 @@ public:
 };
 
 #endif // AG_COMMON_H
+#endif // ESP8266

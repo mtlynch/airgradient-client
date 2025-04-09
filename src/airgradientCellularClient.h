@@ -26,7 +26,7 @@ public:
   ~AirgradientCellularClient() {};
 
   bool begin(std::string sn);
-  bool ensureClientConnection();
+  bool ensureClientConnection(bool reset);
   std::string httpFetchConfig();
   bool httpPostMeasures(const std::string &payload);
   bool mqttConnect();
