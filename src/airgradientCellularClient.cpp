@@ -9,6 +9,7 @@
 
 #include "airgradientCellularClient.h"
 #include "cellularModule.h"
+#include "common.h"
 #include "agLogger.h"
 
 AirgradientCellularClient::AirgradientCellularClient(CellularModule *cellularModule)
@@ -52,23 +53,28 @@ bool AirgradientCellularClient::begin(std::string sn) {
   return true;
 }
 
-bool AirgradientCellularClient::ensureClientConnection() {
-  AG_LOGE(TAG, "Ensuring client connection! Power cycle module and restart network registration");
+bool AirgradientCellularClient::ensureClientConnection(bool reset) {
+  AG_LOGE(TAG, "Ensuring client connection, restarting cellular module");
+  if (reset) {
+    if (cell_->reset() == false) {
+      AG_LOGW(TAG, "Reset failed, power cycle module...");
+      cell_->powerOff(true);
+      DELAY_MS(2000);
+      cell_->powerOn();
+    }
+
+    AG_LOGI(TAG, "Wait for 10s for module to warming up");
+    DELAY_MS(10000);
+  }
+
   if (cell_->reinitialize() != CellReturnStatus::Ok) {
     AG_LOGE(TAG, "Failed reinitialized cellular module");
     clientReady = false;
     return false;
   }
 
-  // To make sure module ready to use
-  if (cell_->isSimReady() != CellReturnStatus::Ok) {
-    AG_LOGE(TAG, "SIM is not ready, please check if SIM is inserted properly!");
-    clientReady = false;
-    return false;
-  }
-
   // Register network
-  auto result = cell_->startNetworkRegistration(CellTechnology::LTE, _apn, 30000);
+  auto result = cell_->startNetworkRegistration(CellTechnology::LTE, _apn, (5 * 60000));
   if (result.status != CellReturnStatus::Ok) {
     AG_LOGE(TAG, "Cellular client failed, module cannot register to network");
     clientReady = false;

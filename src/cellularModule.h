@@ -41,7 +41,7 @@ public:
 
   virtual bool init();
   virtual void powerOn();
-  virtual void powerOff();
+  virtual void powerOff(bool force = false);
   virtual bool reset();
   virtual void sleep();
   virtual CellResult<std::string> getModuleInfo();
