@@ -68,7 +68,7 @@ bool AirgradientCellularClient::ensureClientConnection(bool reset) {
   }
 
   if (cell_->reinitialize() != CellReturnStatus::Ok) {
-    AG_LOGE(TAG, "Failed reinitialized cellular module");
+    AG_LOGE(TAG, "Failed to reinitialized the cellular module");
     clientReady = false;
     return false;
   }
