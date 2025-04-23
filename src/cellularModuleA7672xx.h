@@ -14,7 +14,8 @@
 
 #include "driver/gpio.h"
 
-#include "agSerial.h"
+// #include "agSerial.h"
+#include "AirgradientSerial.h"
 #include "atCommandHandler.h"
 #include "cellularModule.h"
 
@@ -24,7 +25,7 @@ private:
 
   bool _initialized = false;
 
-  AgSerial *agSerial_ = nullptr;
+  AirgradientSerial *agSerial_ = nullptr;
   gpio_num_t _powerIO = GPIO_NUM_NC;
   ATCommandHandler *at_ = nullptr;
 
@@ -52,8 +53,8 @@ public:
     NETWORK_REGISTERED
   };
 
-  CellularModuleA7672XX(AgSerial *agSerial);
-  CellularModuleA7672XX(AgSerial *agSerial, int powerPin);
+  CellularModuleA7672XX(AirgradientSerial *agSerial);
+  CellularModuleA7672XX(AirgradientSerial *agSerial, int powerPin);
   ~CellularModuleA7672XX();
 
   bool init();

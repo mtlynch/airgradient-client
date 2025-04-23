@@ -7,22 +7,23 @@
 
 #ifndef ESP8266
 
+#include "cellularModuleA7672xx.h"
 #include <cstdint>
 #include <memory>
+#include <cstring>
 
 #include "common.h"
 #include "agLogger.h"
 #include "agSerial.h"
-#include "cellularModuleA7672xx.h"
 #include "cellularModule.h"
 #include "atCommandHandler.h"
 #include "cellularModule.h"
 
 #define REGIS_RETRY_DELAY() DELAY_MS(1000);
 
-CellularModuleA7672XX::CellularModuleA7672XX(AgSerial *agSerial) : agSerial_(agSerial) {}
+CellularModuleA7672XX::CellularModuleA7672XX(AirgradientSerial *agSerial) : agSerial_(agSerial) {}
 
-CellularModuleA7672XX::CellularModuleA7672XX(AgSerial *agSerial, int powerPin) {
+CellularModuleA7672XX::CellularModuleA7672XX(AirgradientSerial *agSerial, int powerPin) {
   agSerial_ = agSerial;
   _powerIO = static_cast<gpio_num_t>(powerPin);
 }

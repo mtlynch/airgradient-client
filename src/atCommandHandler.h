@@ -13,7 +13,8 @@
 #include <cstdint>
 #include <string>
 
-#include "agSerial.h"
+#include "AirgradientSerial.h"
+// #include "agSerial.h"
 
 #define AT_DEBUG
 #define AT_OK "OK"
@@ -31,12 +32,13 @@ static const char RESP_ERROR_CMS[] = "+CMS ERROR:";
 class ATCommandHandler {
 private:
   const char *const TAG = "ATCMD";
-  AgSerial *agSerial_ = nullptr;
+  AirgradientSerial *agSerial_ = nullptr;
+  // AgSerial *agSerial_ = nullptr;
 
 public:
   enum Response { ExpArg1, ExpArg2, ExpArg3, Timeout, CMxError };
 
-  ATCommandHandler(AgSerial *agSerial);
+  ATCommandHandler(AirgradientSerial *agSerial);
   ~ATCommandHandler() {};
 
   bool testAT(uint32_t timeoutMs = 60000);
