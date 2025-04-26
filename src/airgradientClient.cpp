@@ -29,7 +29,7 @@ std::string AirgradientClient::httpFetchConfig() { return std::string(); }
 
 bool AirgradientClient::httpPostMeasures(const std::string &payload) { return false; }
 
-bool AirgradientClient::httpPostMeasures(int measureInterval, std::vector<MeasuresOpenAirMax> data) { return false; }
+bool AirgradientClient::httpPostMeasures(int measureInterval, std::vector<OpenAirMaxPayload> data) { return false; }
 
 bool AirgradientClient::mqttConnect() { return false; }
 

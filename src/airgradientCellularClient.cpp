@@ -168,7 +168,7 @@ bool AirgradientCellularClient::httpPostMeasures(const std::string &payload) {
   return true;
 }
 
-bool AirgradientCellularClient::httpPostMeasures(int measureInterval, std::vector<MeasuresOpenAirMax> data) {
+bool AirgradientCellularClient::httpPostMeasures(int measureInterval, std::vector<OpenAirMaxPayload> data) {
   // TODO: Implement!
   return true;
 }

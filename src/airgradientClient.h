@@ -19,8 +19,8 @@ public:
   AirgradientClient() {};
   virtual ~AirgradientClient() {};
 
-  struct MeasuresOpenAirMax {
-    int co2;
+  struct OpenAirMaxPayload {
+    int rco2;
     float particleCount03;
     float pm01;
     float pm25;
@@ -37,7 +37,7 @@ public:
   virtual bool ensureClientConnection(bool reset);
   virtual std::string httpFetchConfig();
   virtual bool httpPostMeasures(const std::string &payload);
-  virtual bool httpPostMeasures(int measureInterval, std::vector<MeasuresOpenAirMax> data);
+  virtual bool httpPostMeasures(int measureInterval, std::vector<OpenAirMaxPayload> data);
   virtual bool mqttConnect();
   virtual bool mqttDisconnect();
   virtual bool mqttPublishMeasures(const std::string &payload);
