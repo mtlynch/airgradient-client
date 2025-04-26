@@ -9,6 +9,7 @@
 #define AIRGRADIENT_CLIENT_H
 
 #include <string>
+#include <vector>
 
 #define AIRGRADIENT_HTTP_DOMAIN "hw.airgradient.com"
 
@@ -18,10 +19,25 @@ public:
   AirgradientClient() {};
   virtual ~AirgradientClient() {};
 
+  struct MeasuresOpenAirMax {
+    int co2;
+    float particleCount03;
+    float pm01;
+    float pm25;
+    float pm10;
+    int tvocRaw;
+    int noxRaw;
+    float atmp;
+    float rhum;
+    int vBatt;
+    int vPanel;
+  };
+
   virtual bool begin(std::string sn);
   virtual bool ensureClientConnection(bool reset);
   virtual std::string httpFetchConfig();
   virtual bool httpPostMeasures(const std::string &payload);
+  virtual bool httpPostMeasures(int measureInterval, std::vector<MeasuresOpenAirMax> data);
   virtual bool mqttConnect();
   virtual bool mqttDisconnect();
   virtual bool mqttPublishMeasures(const std::string &payload);

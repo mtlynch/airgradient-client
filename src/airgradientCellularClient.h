@@ -29,6 +29,7 @@ public:
   bool ensureClientConnection(bool reset);
   std::string httpFetchConfig();
   bool httpPostMeasures(const std::string &payload);
+  bool httpPostMeasures(int measureInterval, std::vector<MeasuresOpenAirMax> data);
   bool mqttConnect();
   bool mqttDisconnect();
   bool mqttPublishMeasures(const std::string &payload);

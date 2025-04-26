@@ -78,6 +78,7 @@ ATCommandHandler::Response ATCommandHandler::waitResponse(uint32_t timeoutMs, co
         AG_LOGW(TAG, "CMx error message: %s", errMsg.c_str());
         response = CMxError;
       }
+      AT_YIELD();
     }
 
     AT_YIELD();
@@ -129,6 +130,7 @@ int ATCommandHandler::waitAndRecvRespLine(char *received, int memorySize, uint32
       // Append to buffer
       received[idx] = b;
       idx++;
+      AT_YIELD();
     }
 
     AT_YIELD();

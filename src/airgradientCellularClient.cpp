@@ -168,6 +168,11 @@ bool AirgradientCellularClient::httpPostMeasures(const std::string &payload) {
   return true;
 }
 
+bool AirgradientCellularClient::httpPostMeasures(int measureInterval, std::vector<MeasuresOpenAirMax> data) {
+  // TODO: Implement!
+  return true;
+}
+
 bool AirgradientCellularClient::mqttConnect() {
   auto result = cell_->mqttConnect(serialNumber, mqttDomain, mqttPort);
   if (result != CellReturnStatus::Ok) {
