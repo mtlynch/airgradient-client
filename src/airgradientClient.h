@@ -21,7 +21,7 @@ public:
 
   struct OpenAirMaxPayload {
     int rco2;
-    float particleCount03;
+    int particleCount003;
     float pm01;
     float pm25;
     float pm10;
@@ -29,8 +29,8 @@ public:
     int noxRaw;
     float atmp;
     float rhum;
-    int vBatt;
-    int vPanel;
+    float vBat;
+    float vPanel;
   };
 
   virtual bool begin(std::string sn);
