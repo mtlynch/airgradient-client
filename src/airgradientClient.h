@@ -31,6 +31,7 @@ public:
     float rhum;
     float vBat;
     float vPanel;
+    int signal;
   };
 
   virtual bool begin(std::string sn);

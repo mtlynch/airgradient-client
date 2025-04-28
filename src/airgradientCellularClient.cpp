@@ -5,12 +5,20 @@
  * CC BY-SA 4.0 Attribution-ShareAlike 4.0 International License
  */
 
+#include <cmath>
 #ifndef ESP8266
 
 #include "airgradientCellularClient.h"
+#include <sstream>
 #include "cellularModule.h"
 #include "common.h"
 #include "agLogger.h"
+#include "config.h"
+
+// TODO: Use kconfig with default ONE_OPENAIR
+#define ONE_OPENAIR_POST_MEASURES_ENDPOINT "cts"
+#define OPENAIR_MAX_POST_MEASURES_ENDPOINT "cvl"
+#define POST_MEASURES_ENDPOINT OPENAIR_MAX_POST_MEASURES_ENDPOINT
 
 AirgradientCellularClient::AirgradientCellularClient(CellularModule *cellularModule)
     : cell_(cellularModule) {}
@@ -105,7 +113,7 @@ std::string AirgradientCellularClient::httpFetchConfig() {
   // Response status check if fetch failed
   if (result.data.statusCode != 200) {
     AG_LOGW(TAG, "Failed fetch configuration from server with return code %d",
-             result.data.statusCode);
+            result.data.statusCode);
     // Return code 400 means device not registered on ag server
     if (result.data.statusCode == 400) {
       registeredOnAgServer = false;
@@ -139,7 +147,7 @@ std::string AirgradientCellularClient::httpFetchConfig() {
 bool AirgradientCellularClient::httpPostMeasures(const std::string &payload) {
   // std::string url = buildPostMeasuresUrl();
   char url[80] = {0};
-  sprintf(url, "http://%s/sensors/%s/cts", httpDomain.c_str(), serialNumber.c_str());
+  sprintf(url, "http://%s/sensors/%s/%s", httpDomain.c_str(), serialNumber.c_str(), POST_MEASURES_ENDPOINT);
   AG_LOGI(TAG, "Post measures to %s", url);
   AG_LOGI(TAG, "Payload: %s", payload.c_str());
 
@@ -168,9 +176,82 @@ bool AirgradientCellularClient::httpPostMeasures(const std::string &payload) {
   return true;
 }
 
-bool AirgradientCellularClient::httpPostMeasures(int measureInterval, std::vector<OpenAirMaxPayload> data) {
-  // TODO: Implement!
-  return true;
+bool AirgradientCellularClient::httpPostMeasures(int measureIntervalMs,
+                                                 std::vector<OpenAirMaxPayload> data) {
+  // Build payload using oss, easier to manage if there's an invalid value that should not included
+  std::ostringstream payload;
+
+  // Add interval at the first position
+  payload << std::to_string(measureIntervalMs / 1000); // Convert to seconds
+
+  for (const OpenAirMaxPayload &v : data) {
+    // Seperator between measures cycle
+    payload << ",";
+    // CO2
+    if (IS_CO2_VALID(v.rco2)) {
+      payload << std::round(v.rco2);
+    }
+    payload << ",";
+    // Temperature
+    if (IS_TEMPERATURE_VALID(v.atmp)) {
+      payload << std::round(v.atmp * 10);
+    }
+    payload << ",";
+    // Humidity
+    if (IS_HUMIDITY_VALID(v.rhum)) {
+      payload << std::round(v.rhum * 10);
+    }
+    payload << ",";
+    // PM1.0 atmospheric environment
+    if (IS_PM_VALID(v.pm01)) {
+      payload << std::round(v.pm01 * 10);
+    }
+    payload << ",";
+    // PM2.5 atmospheric environment
+    if (IS_PM_VALID(v.pm25)) {
+      payload << std::round(v.pm25 * 10);
+    }
+    payload << ",";
+    // PM10 atmospheric environment
+    if (IS_PM_VALID(v.pm10)) {
+      payload << std::round(v.pm10 * 10);
+    }
+    payload << ",";
+    // TVOC
+    if (IS_TVOC_VALID(v.tvocRaw)) {
+      payload << v.tvocRaw;
+    }
+    payload << ",";
+    // NOx
+    if (IS_NOX_VALID(v.noxRaw)) {
+      payload << v.noxRaw;
+    }
+    payload << ",";
+    // PM 0.3 particle count
+    if (IS_PM_VALID(v.particleCount003)) {
+      payload << v.particleCount003;
+    }
+    payload << ",";
+    // Radio signal
+    if (v.signal < 0) {
+      payload << v.signal;
+    } 
+    payload << ",";
+    // V Battery
+    if (IS_VOLT_VALID(v.vBat)) {
+      payload << std::round(v.vBat * 100);
+    }
+    payload << ",";
+    // V Solar Panel
+    if (IS_VOLT_VALID(v.vPanel)) {
+      payload << std::round(v.vPanel * 100);
+    }
+  }
+
+  // Compile it
+  std::string toSend = payload.str();
+
+  return httpPostMeasures(toSend);
 }
 
 bool AirgradientCellularClient::mqttConnect() {
