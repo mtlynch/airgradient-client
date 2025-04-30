@@ -176,13 +176,13 @@ bool AirgradientCellularClient::httpPostMeasures(const std::string &payload) {
   return true;
 }
 
-bool AirgradientCellularClient::httpPostMeasures(int measureIntervalMs,
+bool AirgradientCellularClient::httpPostMeasures(int measureInterval,
                                                  std::vector<OpenAirMaxPayload> data) {
   // Build payload using oss, easier to manage if there's an invalid value that should not included
   std::ostringstream payload;
 
   // Add interval at the first position
-  payload << std::to_string(measureIntervalMs / 1000); // Convert to seconds
+  payload << measureInterval; 
 
   for (const OpenAirMaxPayload &v : data) {
     // Seperator between measures cycle
@@ -233,7 +233,7 @@ bool AirgradientCellularClient::httpPostMeasures(int measureIntervalMs,
     }
     payload << ",";
     // Radio signal
-    if (v.signal < 0) {
+    if (v.signal > 0) {
       payload << v.signal;
     } 
     payload << ",";
