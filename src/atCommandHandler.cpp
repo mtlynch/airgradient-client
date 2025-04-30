@@ -78,10 +78,9 @@ ATCommandHandler::Response ATCommandHandler::waitResponse(uint32_t timeoutMs, co
         AG_LOGW(TAG, "CMx error message: %s", errMsg.c_str());
         response = CMxError;
       }
-      AT_YIELD();
     }
 
-    AT_YIELD();
+    DELAY_MS(10);
   } while ((MILLIS() - waitStartTime) < timeoutMs && response == Timeout);
 
   return response;
