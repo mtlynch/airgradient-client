@@ -5,6 +5,8 @@
  * CC BY-SA 4.0 Attribution-ShareAlike 4.0 International License
  */
 
+#include "freertos/idf_additions.h"
+#include "freertos/projdefs.h"
 #ifndef ESP8266
 
 #include "cellularModuleA7672xx.h"
@@ -405,7 +407,7 @@ CellularModuleA7672XX::httpGet(const std::string &url, int connectionTimeout, in
   }
 
   AG_LOGI(TAG, "HTTP response code %d with body len: %d. Retrieving response body...", statusCode,
-           bodyLen);
+          bodyLen);
 
   uint32_t retrieveStartTime = MILLIS();
 
@@ -418,10 +420,10 @@ CellularModuleA7672XX::httpGet(const std::string &url, int connectionTimeout, in
     // +HTTPREAD
     int offset = 0;
     int receivedBufferLen;
-    char buf[HTTPREAD_CHUNK_SIZE * 2]; // Just to make sure not overflow
+    char *buf = new char[HTTPREAD_CHUNK_SIZE + 1]; // Add +1 to give a space at the end
 
     do {
-      memset(buf, 0, sizeof(buf));
+      memset(buf, 0, (HTTPREAD_CHUNK_SIZE + 1));
       sprintf(buf, "+HTTPREAD=%d,%d", offset, HTTPREAD_CHUNK_SIZE);
       at_->sendAT(buf);
       response = at_->waitResponse("+HTTPREAD:"); // Wait for first +HTTPREAD, skip the OK
@@ -446,7 +448,7 @@ CellularModuleA7672XX::httpGet(const std::string &url, int connectionTimeout, in
       if (receivedActual != receivedBufferLen) {
         // Size received not the same as expected, handle better
         AG_LOGE(TAG, "receivedBufferLen: %d | receivedActual: %d", receivedBufferLen,
-                 receivedActual);
+                receivedActual);
         break;
       }
       at_->clearBuffer();
@@ -459,7 +461,12 @@ CellularModuleA7672XX::httpGet(const std::string &url, int connectionTimeout, in
       // Continue to retrieve another 200 bytes
       offset = offset + HTTPREAD_CHUNK_SIZE;
 
-    } while (offset < bodyLen); // TODO: Add timeout?
+#if CONFIG_DELAY_HTTPREAD_ITERATION_ENABLED
+      vTaskDelay(pdMS_TO_TICKS(10));
+#endif
+    } while (offset < bodyLen);
+
+    delete[] buf;
 
     // Check if all response body data received
     if (offset < bodyLen) {
@@ -471,7 +478,7 @@ CellularModuleA7672XX::httpGet(const std::string &url, int connectionTimeout, in
   }
 
   AG_LOGD(TAG, "Finish retrieve response body from module buffer in %.2fs",
-           ((float)MILLIS() - retrieveStartTime) / 1000);
+          ((float)MILLIS() - retrieveStartTime) / 1000);
 
   // set status code and response body for return function
   result.data.statusCode = statusCode;
