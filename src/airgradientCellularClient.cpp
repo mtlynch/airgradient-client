@@ -134,7 +134,7 @@ std::string AirgradientCellularClient::httpFetchConfig() {
     return {};
   }
 
-  AG_LOGD(TAG, "Received configuration: (%d) %s", result.data.bodyLen, result.data.body.get());
+  AG_LOGI(TAG, "Received configuration: (%d) %s", result.data.bodyLen, result.data.body.get());
 
   // Move the string from unique_ptr
   std::string body = std::string(result.data.body.get());
