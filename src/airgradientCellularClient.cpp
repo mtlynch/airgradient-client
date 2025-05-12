@@ -147,7 +147,8 @@ std::string AirgradientCellularClient::httpFetchConfig() {
 bool AirgradientCellularClient::httpPostMeasures(const std::string &payload) {
   // std::string url = buildPostMeasuresUrl();
   char url[80] = {0};
-  sprintf(url, "http://%s/sensors/%s/%s", httpDomain.c_str(), serialNumber.c_str(), POST_MEASURES_ENDPOINT);
+  sprintf(url, "http://%s/sensors/%s/%s", httpDomain.c_str(), serialNumber.c_str(),
+          POST_MEASURES_ENDPOINT);
   AG_LOGI(TAG, "Post measures to %s", url);
   AG_LOGI(TAG, "Payload: %s", payload.c_str());
 
@@ -182,7 +183,7 @@ bool AirgradientCellularClient::httpPostMeasures(int measureInterval,
   std::ostringstream payload;
 
   // Add interval at the first position
-  payload << measureInterval; 
+  payload << measureInterval;
 
   for (const OpenAirMaxPayload &v : data) {
     // Seperator between measures cycle
@@ -234,8 +235,11 @@ bool AirgradientCellularClient::httpPostMeasures(int measureInterval,
     payload << ",";
     // Radio signal
     if (v.signal > 0) {
-      payload << v.signal;
-    } 
+      int dbm = cell_->csqToDbm(v.signal);
+      if (dbm != 0) {
+        payload << dbm;
+      }
+    }
     payload << ",";
     // V Battery
     if (IS_VOLT_VALID(v.vBat)) {
