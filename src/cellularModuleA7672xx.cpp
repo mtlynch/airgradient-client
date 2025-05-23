@@ -311,7 +311,7 @@ CellularModuleA7672XX::startNetworkRegistration(CellTechnology ct, const std::st
       break;
     case CONFIGURE_NETWORK:
       // Here's after finish goes back to check network registration status
-      state = _implConfigureNetwork();
+      state = _implConfigureNetwork(apn);
       // After configuring network, check network registration status
       // Reset time for CHECK_NETWORK_REGISTRATION
       startStateTime = MILLIS();
@@ -840,7 +840,7 @@ CellularModuleA7672XX::NetworkRegistrationState CellularModuleA7672XX::_implEnsu
   return NETWORK_REGISTERED;
 }
 
-CellularModuleA7672XX::NetworkRegistrationState CellularModuleA7672XX::_implConfigureNetwork() {
+CellularModuleA7672XX::NetworkRegistrationState CellularModuleA7672XX::_implConfigureNetwork(const std::string &apn) {
   CellResult<int> result = retrieveSignal();
   if (result.status == CellReturnStatus::Timeout) {
     // Go back to check module ready
@@ -849,7 +849,15 @@ CellularModuleA7672XX::NetworkRegistrationState CellularModuleA7672XX::_implConf
 
   AG_LOGI(TAG, "Cellular signal: %d", result.data);
 
-  CellReturnStatus crs = _checkOperatorSelection();
+  CellReturnStatus crs = _applyAPN(apn);
+  if (crs == CellReturnStatus::Timeout) {
+    // Go back to check module ready
+    return CHECK_MODULE_READY;
+  } else if (crs == CellReturnStatus::Error) {
+    // TODO: What's next if this return error?
+  }
+
+  crs = _checkOperatorSelection();
   if (crs == CellReturnStatus::Timeout) {
     // Go back to check module ready
     return CHECK_MODULE_READY;
@@ -872,15 +880,7 @@ CellularModuleA7672XX::NetworkRegistrationState CellularModuleA7672XX::_implConf
 
 CellularModuleA7672XX::NetworkRegistrationState
 CellularModuleA7672XX::_implConfigureService(const std::string &apn) {
-  CellReturnStatus crs = _applyAPN(apn);
-  if (crs == CellReturnStatus::Timeout) {
-    // Go back to check module ready
-    return CHECK_MODULE_READY;
-  } else if (crs == CellReturnStatus::Error) {
-    // TODO: What's next if this return error?
-  }
-
-  crs = _activatePDPContext();
+  CellReturnStatus crs = _activatePDPContext();
   if (crs == CellReturnStatus::Timeout) {
     // Go back to check module ready
     return CHECK_MODULE_READY;

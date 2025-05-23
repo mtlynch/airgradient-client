@@ -97,7 +97,7 @@ private:
   NetworkRegistrationState _implPrepareRegistration(CellTechnology ct);
   NetworkRegistrationState _implCheckNetworkRegistration(CellTechnology ct);
   NetworkRegistrationState _implEnsureServiceReady();
-  NetworkRegistrationState _implConfigureNetwork();
+  NetworkRegistrationState _implConfigureNetwork(const std::string &apn);
   NetworkRegistrationState _implConfigureService(const std::string &apn);
   NetworkRegistrationState _implNetworkRegistered();
 
