@@ -49,7 +49,7 @@ bool AirgradientCellularClient::begin(std::string sn) {
   AG_LOGI(TAG, "SIM CCID: %s", result.data.c_str());
 
   // Register network
-  result = cell_->startNetworkRegistration(CellTechnology::LTE, _apn, (5 * 60000));
+  result = cell_->startNetworkRegistration(CellTechnology::LTE, _apn, (10 * 60000));
   if (result.status != CellReturnStatus::Ok) {
     AG_LOGE(TAG, "Cellular client failed, module cannot register to network");
     return false;
@@ -82,7 +82,7 @@ bool AirgradientCellularClient::ensureClientConnection(bool reset) {
   }
 
   // Register network
-  auto result = cell_->startNetworkRegistration(CellTechnology::LTE, _apn, (5 * 60000));
+  auto result = cell_->startNetworkRegistration(CellTechnology::LTE, _apn, (10 * 60000));
   if (result.status != CellReturnStatus::Ok) {
     AG_LOGE(TAG, "Cellular client failed, module cannot register to network");
     clientReady = false;
