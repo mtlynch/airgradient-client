@@ -32,6 +32,11 @@ public:
     float vBat;
     float vPanel;
     int signal;
+    float o3WorkingElectrode;
+    float o3AuxiliaryElectrode;
+    float no2WorkingElectrode;
+    float no2AuxiliaryElectrode;
+    float afeTemp;
   };
 
   virtual bool begin(std::string sn);

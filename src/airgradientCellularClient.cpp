@@ -17,7 +17,7 @@
 
 // TODO: Use kconfig with default ONE_OPENAIR
 #define ONE_OPENAIR_POST_MEASURES_ENDPOINT "cts"
-#define OPENAIR_MAX_POST_MEASURES_ENDPOINT "cvl"
+#define OPENAIR_MAX_POST_MEASURES_ENDPOINT "cvn"
 #define POST_MEASURES_ENDPOINT OPENAIR_MAX_POST_MEASURES_ENDPOINT
 
 AirgradientCellularClient::AirgradientCellularClient(CellularModule *cellularModule)
@@ -249,6 +249,31 @@ bool AirgradientCellularClient::httpPostMeasures(int measureInterval,
     // V Solar Panel
     if (IS_VOLT_VALID(v.vPanel)) {
       payload << std::round(v.vPanel * 100);
+    }
+    payload << ",";
+    // Working Electrode O3 
+    if (IS_VOLT_VALID(v.o3WorkingElectrode)) {
+      payload << std::round(v.o3WorkingElectrode * 1000);
+    }
+    payload << ",";
+    // Auxiliary Electrode O3 
+    if (IS_VOLT_VALID(v.o3AuxiliaryElectrode)) {
+      payload << std::round(v.o3AuxiliaryElectrode * 1000);
+    }
+    payload << ",";
+    // Working Electrode NO2 
+    if (IS_VOLT_VALID(v.no2WorkingElectrode)) {
+      payload << std::round(v.no2WorkingElectrode * 1000);
+    }
+    payload << ",";
+    // Auxiliary Electrode NO2 
+    if (IS_VOLT_VALID(v.no2AuxiliaryElectrode)) {
+      payload << std::round(v.no2AuxiliaryElectrode * 1000);
+    }
+    payload << ",";
+    // AFE Temperature
+    if (IS_VOLT_VALID(v.afeTemp)) {
+      payload << std::round(v.afeTemp * 10);
     }
   }
 
