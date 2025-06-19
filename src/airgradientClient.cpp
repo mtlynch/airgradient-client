@@ -11,6 +11,8 @@
 
 bool AirgradientClient::begin(std::string sn) { return true; }
 
+std::string AirgradientClient::getICCID() { return ""; }
+
 bool AirgradientClient::ensureClientConnection(bool reset) { return true; }
 
 void AirgradientClient::setHttpDomain(const std::string &target) {
