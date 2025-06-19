@@ -37,7 +37,7 @@ bool AirgradientCellularClient::begin(std::string sn) {
     AG_LOGE(TAG, "Failed get SIM CCID, please check if SIM is inserted properly!");
     return false;
   }
-
+  _iccid = result.data;
   AG_LOGI(TAG, "SIM CCID: %s", result.data.c_str());
 
   // Register network
@@ -51,6 +51,10 @@ bool AirgradientCellularClient::begin(std::string sn) {
   clientReady = true;
 
   return true;
+}
+
+std::string AirgradientCellularClient::getICCID() {
+  return _iccid;
 }
 
 bool AirgradientCellularClient::ensureClientConnection(bool reset) {

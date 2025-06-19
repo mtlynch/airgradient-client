@@ -19,6 +19,7 @@ class AirgradientCellularClient : public AirgradientClient {
 private:
   const char *const TAG = "AgCellClient";
   std::string _apn = "iot.1nce.net";
+  std::string _iccid = "";
   CellularModule *cell_ = nullptr;
 
 public:
@@ -26,6 +27,7 @@ public:
   ~AirgradientCellularClient() {};
 
   bool begin(std::string sn);
+  std::string getICCID();
   bool ensureClientConnection(bool reset);
   std::string httpFetchConfig();
   bool httpPostMeasures(const std::string &payload);
