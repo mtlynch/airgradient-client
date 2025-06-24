@@ -79,6 +79,10 @@ bool CellularModuleA7672XX::init() {
   at_->waitResponse();
   DELAY_MS(2000);
 
+  // Print product identification information
+  at_->sendRaw("ATI");
+  at_->waitResponse();
+
   _initialized = true;
   return true;
 }
