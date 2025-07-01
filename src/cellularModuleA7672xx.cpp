@@ -840,6 +840,16 @@ CellularModuleA7672XX::NetworkRegistrationState CellularModuleA7672XX::_implEnsu
     return ENSURE_SERVICE_READY;
   }
 
+  // Check if network attach
+  crs = _ensurePacketDomainAttached(false);
+  if (crs == CellReturnStatus::Timeout) {
+    // Go back to check module ready
+    return CHECK_MODULE_READY;
+  } else if (crs == CellReturnStatus::Failed || crs == CellReturnStatus::Error) {
+    REGIS_RETRY_DELAY();
+    return ENSURE_SERVICE_READY;
+  }
+
   AG_LOGI(TAG, "Continue: NETWORK_REGISTERED");
   return NETWORK_REGISTERED;
 }
@@ -892,7 +902,7 @@ CellularModuleA7672XX::_implConfigureService(const std::string &apn) {
     // TODO: What's next if this return error?
   }
 
-  crs = _ensurePacketDomainAttached();
+  crs = _ensurePacketDomainAttached(true);
   if (crs == CellReturnStatus::Timeout) {
     // Go back to check module ready
     return CHECK_MODULE_READY;
@@ -1026,7 +1036,7 @@ CellReturnStatus CellularModuleA7672XX::_applyAPN(const std::string &apn) {
   return CellReturnStatus::Ok;
 }
 
-CellReturnStatus CellularModuleA7672XX::_ensurePacketDomainAttached() {
+CellReturnStatus CellularModuleA7672XX::_ensurePacketDomainAttached(bool forceAttach) {
   at_->sendAT("+CGATT?");
   if (at_->waitResponse("+CGATT:") != ATCommandHandler::ExpArg1) {
     // If return error or not response consider "error"
@@ -1041,6 +1051,11 @@ CellReturnStatus CellularModuleA7672XX::_ensurePacketDomainAttached() {
   if (state == "1") {
     // Already attached
     return CellReturnStatus::Ok;
+  }
+
+  if (!forceAttach) {
+    // Not expect to attach it manually, then return failed because its not attached
+    return CellReturnStatus::Failed;
   }
 
   // Not attached, attempt to

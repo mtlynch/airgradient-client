@@ -108,7 +108,7 @@ private:
   CellReturnStatus _checkOperatorSelection();
   CellReturnStatus _isServiceAvailable();
   CellReturnStatus _applyAPN(const std::string &apn);
-  CellReturnStatus _ensurePacketDomainAttached();
+  CellReturnStatus _ensurePacketDomainAttached(bool forceAttach);
   CellReturnStatus _activatePDPContext();
   CellReturnStatus _httpInit();
   CellReturnStatus _httpSetParamTimeout(int connectionTimeout, int responseTimeout);
