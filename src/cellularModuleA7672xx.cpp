@@ -293,7 +293,7 @@ CellularModuleA7672XX::startNetworkRegistration(CellTechnology ct, const std::st
       startStateTime = MILLIS();
       break;
     case CHECK_NETWORK_REGISTRATION:
-      if ((MILLIS() - startStateTime) > 10000) {
+      if ((MILLIS() - startStateTime) > 15000) {
         // Timeout wait network registration to expected status, configuring network
         state = CONFIGURE_NETWORK;
         continue;
@@ -854,7 +854,8 @@ CellularModuleA7672XX::NetworkRegistrationState CellularModuleA7672XX::_implEnsu
   return NETWORK_REGISTERED;
 }
 
-CellularModuleA7672XX::NetworkRegistrationState CellularModuleA7672XX::_implConfigureNetwork(const std::string &apn) {
+CellularModuleA7672XX::NetworkRegistrationState
+CellularModuleA7672XX::_implConfigureNetwork(const std::string &apn) {
   CellResult<int> result = retrieveSignal();
   if (result.status == CellReturnStatus::Timeout) {
     // Go back to check module ready
@@ -879,6 +880,19 @@ CellularModuleA7672XX::NetworkRegistrationState CellularModuleA7672XX::_implConf
     // Result already as expected, go back to check network registration status
     return CHECK_NETWORK_REGISTRATION;
   }
+
+  _printNetworkInfo();
+
+  crs = _applyPreferedBands();
+  if (crs == CellReturnStatus::Timeout) {
+    // Go back to check module ready
+    return CHECK_MODULE_READY;
+  } else if (crs == CellReturnStatus::Error) {
+    // TODO: What's next if this return error?
+  }
+
+  AG_LOGI(TAG, "Wait band settings to be applied for 5s, before set COPS back to automatic");
+  DELAY_MS(5000);
 
   crs = _applyOperatorSelection();
   if (crs == CellReturnStatus::Timeout) {
@@ -970,6 +984,16 @@ CellReturnStatus CellularModuleA7672XX::_applyCellularTechnology(CellTechnology 
   return CellReturnStatus::Ok;
 }
 
+CellReturnStatus CellularModuleA7672XX::_applyPreferedBands() {
+  at_->sendAT("+CNBP=0x0000000000000000,0x000007FF3FDF3FFF,0x000F");
+  if (at_->waitResponse() != ATCommandHandler::ExpArg1) {
+    // TODO: This should be error or timeout
+    return CellReturnStatus::Error;
+  }
+
+  return CellReturnStatus::Ok;
+}
+
 CellReturnStatus CellularModuleA7672XX::_applyOperatorSelection() {
   at_->sendAT("+COPS=0,2");
   if (at_->waitResponse() != ATCommandHandler::ExpArg1) {
@@ -995,6 +1019,24 @@ CellReturnStatus CellularModuleA7672XX::_checkOperatorSelection() {
   }
 
   // receive OK response from the buffer, ignore it
+  at_->waitResponse();
+
+  return crs;
+}
+
+CellReturnStatus CellularModuleA7672XX::_printNetworkInfo() {
+  auto crs = CellReturnStatus::Ok;
+  at_->sendAT("+CNBP?");
+  at_->waitResponse();
+
+  AG_LOGI(TAG, "Wait to list operator selections..");
+  at_->sendAT("+COPS=?");
+  at_->waitResponse(60000);
+
+  at_->sendAT("+CPSI?");
+  at_->waitResponse();
+
+  at_->sendAT("+CGDCONT?");
   at_->waitResponse();
 
   return crs;

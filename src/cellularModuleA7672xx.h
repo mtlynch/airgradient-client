@@ -104,8 +104,10 @@ private:
   // AT Command functions
   CellReturnStatus _disableNetworkRegistrationURC(CellTechnology ct); // depend on CellTech
   CellReturnStatus _applyCellularTechnology(CellTechnology ct);
+  CellReturnStatus _applyPreferedBands();
   CellReturnStatus _applyOperatorSelection();
   CellReturnStatus _checkOperatorSelection();
+  CellReturnStatus _printNetworkInfo();
   CellReturnStatus _isServiceAvailable();
   CellReturnStatus _applyAPN(const std::string &apn);
   CellReturnStatus _ensurePacketDomainAttached(bool forceAttach);
