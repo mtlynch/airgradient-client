@@ -985,7 +985,9 @@ CellReturnStatus CellularModuleA7672XX::_applyCellularTechnology(CellTechnology 
 }
 
 CellReturnStatus CellularModuleA7672XX::_applyPreferedBands() {
-  at_->sendAT("+CNBP=0x0000000000000000,0x000007FF3FDF3FFF,0x000F");
+  // Attempt to apply all bands supported (might be different based on the region)
+  // Apply for both 2G and 4G
+  at_->sendAT("+CNBP=0xFFFFFFFF7FFFFFFF,0x000007FF3FDF3FFF,0x000F");
   if (at_->waitResponse() != ATCommandHandler::ExpArg1) {
     // TODO: This should be error or timeout
     return CellReturnStatus::Error;
