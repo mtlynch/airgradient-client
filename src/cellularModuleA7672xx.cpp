@@ -806,7 +806,13 @@ CellularModuleA7672XX::_implPrepareRegistration(CellTechnology ct) {
 
 CellularModuleA7672XX::NetworkRegistrationState
 CellularModuleA7672XX::_implCheckNetworkRegistration(CellTechnology ct) {
-  CellReturnStatus crs = isNetworkRegistered(ct);
+  CellReturnStatus crs;
+  if (ct == CellTechnology::Auto) {
+    crs = _checkAllRegistrationStatusCommand();
+  } else {
+    crs = isNetworkRegistered(ct);
+  }
+
   if (crs == CellReturnStatus::Timeout) {
     // Go back to check module ready
     return CHECK_MODULE_READY;
@@ -956,19 +962,58 @@ CellularModuleA7672XX::NetworkRegistrationState CellularModuleA7672XX::_implNetw
 }
 
 CellReturnStatus CellularModuleA7672XX::_disableNetworkRegistrationURC(CellTechnology ct) {
-  auto cmdNR = _mapCellTechToNetworkRegisCmd(ct);
-  if (cmdNR.empty()) {
-    return CellReturnStatus::Error;
-  }
+  if (ct == CellTechnology::Auto) {
+    // Send every network registration command
+    at_->sendAT("+CREG=0");
+    if (at_->waitResponse() != ATCommandHandler::ExpArg1) {
+      return CellReturnStatus::Timeout;
+    }
+    at_->sendAT("+CGREG=0");
+    if (at_->waitResponse() != ATCommandHandler::ExpArg1) {
+      return CellReturnStatus::Timeout;
+    }
+    at_->sendAT("+CEREG=0");
+    if (at_->waitResponse() != ATCommandHandler::ExpArg1) {
+      return CellReturnStatus::Timeout;
+    }
+  } else {
+    auto cmdNR = _mapCellTechToNetworkRegisCmd(ct);
+    if (cmdNR.empty()) {
+      return CellReturnStatus::Error;
+    }
 
-  char buf[15] = {0};
-  sprintf(buf, "+%s=0", cmdNR.c_str());
-  at_->sendAT(buf);
-  if (at_->waitResponse() != ATCommandHandler::ExpArg1) {
-    return CellReturnStatus::Timeout;
+    char buf[15] = {0};
+    sprintf(buf, "+%s=0", cmdNR.c_str());
+    at_->sendAT(buf);
+    if (at_->waitResponse() != ATCommandHandler::ExpArg1) {
+      return CellReturnStatus::Timeout;
+    }
   }
 
   return CellReturnStatus::Ok;
+}
+
+CellReturnStatus CellularModuleA7672XX::_checkAllRegistrationStatusCommand() {
+  // 2G or 3G
+  auto crs = isNetworkRegistered(CellTechnology::Auto);
+  if (crs == CellReturnStatus::Timeout || crs == CellReturnStatus::Ok) {
+    return crs;
+  }
+
+  // 2G or 3G
+  crs = isNetworkRegistered(CellTechnology::TWO_G);
+  if (crs == CellReturnStatus::Timeout || crs == CellReturnStatus::Ok) {
+    return crs;
+  }
+
+  // 4G
+  crs = isNetworkRegistered(CellTechnology::LTE);
+  if (crs == CellReturnStatus::Timeout || crs == CellReturnStatus::Ok) {
+    return crs;
+  }
+
+  // If after all command check its not return OK, then network still not attached
+  return CellReturnStatus::Failed;
 }
 
 CellReturnStatus CellularModuleA7672XX::_applyCellularTechnology(CellTechnology ct) {
