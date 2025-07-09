@@ -11,6 +11,8 @@
 
 bool AirgradientClient::begin(std::string sn) { return true; }
 
+void AirgradientClient::setNetworkRegistrationTimeoutMs(int timeoutMs) {}
+
 std::string AirgradientClient::getICCID() { return ""; }
 
 bool AirgradientClient::ensureClientConnection(bool reset) { return true; }

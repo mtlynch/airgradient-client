@@ -40,6 +40,7 @@ public:
   };
 
   virtual bool begin(std::string sn);
+  virtual void setNetworkRegistrationTimeoutMs(int timeoutMs);
   virtual std::string getICCID();
   virtual bool ensureClientConnection(bool reset);
   virtual std::string httpFetchConfig();

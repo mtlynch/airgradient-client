@@ -49,7 +49,8 @@ bool AirgradientCellularClient::begin(std::string sn) {
   AG_LOGI(TAG, "SIM CCID: %s", result.data.c_str());
 
   // Register network
-  result = cell_->startNetworkRegistration(CellTechnology::Auto, _apn, (5 * 60000));
+  result =
+      cell_->startNetworkRegistration(CellTechnology::Auto, _apn, _networkRegistrationTimeoutMs);
   if (result.status != CellReturnStatus::Ok) {
     AG_LOGE(TAG, "Cellular client failed, module cannot register to network");
     return false;
@@ -61,9 +62,12 @@ bool AirgradientCellularClient::begin(std::string sn) {
   return true;
 }
 
-std::string AirgradientCellularClient::getICCID() {
-  return _iccid;
+void AirgradientCellularClient::setNetworkRegistrationTimeoutMs(int timeoutMs) {
+  _networkRegistrationTimeoutMs = timeoutMs;
+  ESP_LOGI(TAG, "Timeout set to %d seconds", (_networkRegistrationTimeoutMs / 1000));
 }
+
+std::string AirgradientCellularClient::getICCID() { return _iccid; }
 
 bool AirgradientCellularClient::ensureClientConnection(bool reset) {
   AG_LOGE(TAG, "Ensuring client connection, restarting cellular module");
@@ -86,7 +90,8 @@ bool AirgradientCellularClient::ensureClientConnection(bool reset) {
   }
 
   // Register network
-  auto result = cell_->startNetworkRegistration(CellTechnology::Auto, _apn, (5 * 60000));
+  auto result =
+      cell_->startNetworkRegistration(CellTechnology::Auto, _apn, _networkRegistrationTimeoutMs);
   if (result.status != CellReturnStatus::Ok) {
     AG_LOGE(TAG, "Cellular client failed, module cannot register to network");
     clientReady = false;
@@ -255,22 +260,22 @@ bool AirgradientCellularClient::httpPostMeasures(int measureInterval,
       payload << std::round(v.vPanel * 100);
     }
     payload << ",";
-    // Working Electrode O3 
+    // Working Electrode O3
     if (IS_VOLT_VALID(v.o3WorkingElectrode)) {
       payload << std::round(v.o3WorkingElectrode * 1000);
     }
     payload << ",";
-    // Auxiliary Electrode O3 
+    // Auxiliary Electrode O3
     if (IS_VOLT_VALID(v.o3AuxiliaryElectrode)) {
       payload << std::round(v.o3AuxiliaryElectrode * 1000);
     }
     payload << ",";
-    // Working Electrode NO2 
+    // Working Electrode NO2
     if (IS_VOLT_VALID(v.no2WorkingElectrode)) {
       payload << std::round(v.no2WorkingElectrode * 1000);
     }
     payload << ",";
-    // Auxiliary Electrode NO2 
+    // Auxiliary Electrode NO2
     if (IS_VOLT_VALID(v.no2AuxiliaryElectrode)) {
       payload << std::round(v.no2AuxiliaryElectrode * 1000);
     }
