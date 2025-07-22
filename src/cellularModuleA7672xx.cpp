@@ -455,6 +455,7 @@ CellularModuleA7672XX::httpGet(const std::string &url, int connectionTimeout, in
                 receivedActual);
         break;
       }
+      at_->waitResponse("+HTTPREAD: 0");
       at_->clearBuffer();
 
       AG_LOGV(TAG, "Received body len from buffer: %d", receivedBufferLen);
