@@ -14,12 +14,19 @@
 
 #include "driver/gpio.h"
 
-// #include "agSerial.h"
+#ifdef ARDUINO
+#include "agSerial.h"
+#else
 #include "AirgradientSerial.h"
+#endif
 #include "atCommandHandler.h"
 #include "cellularModule.h"
 
 class CellularModuleA7672XX : public CellularModule {
+public:
+  // NOTE: Temporarily accomodate ununified AirgradientSerial
+  typedef AgSerial AirgradientSerial;
+
 private:
   const char *const TAG = "A7672XX";
 
@@ -88,7 +95,7 @@ private:
   const int DEFAULT_HTTP_RESPONSE_TIMEOUT = 20; // seconds
 #ifdef CONFIG_HTTPREAD_CHUNK_SIZE
   const int HTTPREAD_CHUNK_SIZE = CONFIG_HTTPREAD_CHUNK_SIZE;
-#else 
+#else
   const int HTTPREAD_CHUNK_SIZE = 200;
 #endif
 

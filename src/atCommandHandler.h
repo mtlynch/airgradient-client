@@ -13,8 +13,11 @@
 #include <cstdint>
 #include <string>
 
+#ifdef ARDUINO
+#include "agSerial.h"
+#else
 #include "AirgradientSerial.h"
-// #include "agSerial.h"
+#endif
 
 #define AT_DEBUG
 #define AT_OK "OK"
@@ -24,7 +27,7 @@
 #define DEFAULT_WAIT_RESPONSE_TIMEOUT 9000 // ms
 #ifdef CONFIG_BUFFER_LENGTH_ALLOCATION
 #define DEFAULT_BUFFER_ALLOC CONFIG_BUFFER_LENGTH_ALLOCATION
-#else 
+#else
 #define DEFAULT_BUFFER_ALLOC 4000
 #endif
 
@@ -34,10 +37,13 @@ static const char RESP_ERROR_CME[] = "+CME ERROR:";
 static const char RESP_ERROR_CMS[] = "+CMS ERROR:";
 
 class ATCommandHandler {
+public:
+  // NOTE: Temporarily accomodate ununified AirgradientSerial
+  typedef AgSerial AirgradientSerial;
+
 private:
   const char *const TAG = "ATCMD";
   AirgradientSerial *agSerial_ = nullptr;
-  // AgSerial *agSerial_ = nullptr;
 
 public:
   enum Response { ExpArg1, ExpArg2, ExpArg3, Timeout, CMxError };
