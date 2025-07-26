@@ -38,8 +38,10 @@ static const char RESP_ERROR_CMS[] = "+CMS ERROR:";
 
 class ATCommandHandler {
 public:
+#ifdef ARDUINO
   // NOTE: Temporarily accomodate ununified AirgradientSerial
   typedef AgSerial AirgradientSerial;
+#endif
 
 private:
   const char *const TAG = "ATCMD";

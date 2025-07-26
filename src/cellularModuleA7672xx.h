@@ -29,8 +29,10 @@
 
 class CellularModuleA7672XX : public CellularModule {
 public:
+#ifdef ARDUINO
   // NOTE: Temporarily accomodate ununified AirgradientSerial
   typedef AgSerial AirgradientSerial;
+#endif
 
 private:
   const char *const TAG = "A7672XX";
