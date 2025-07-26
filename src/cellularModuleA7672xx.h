@@ -22,6 +22,11 @@
 #include "atCommandHandler.h"
 #include "cellularModule.h"
 
+#ifndef CONFIG_HTTPREAD_CHUNK_SIZE
+// This configuration define by kconfig
+#define CONFIG_HTTPREAD_CHUNK_SIZE 200
+#endif
+
 class CellularModuleA7672XX : public CellularModule {
 public:
   // NOTE: Temporarily accomodate ununified AirgradientSerial
@@ -93,11 +98,7 @@ public:
 private:
   const int DEFAULT_HTTP_CONNECT_TIMEOUT = 120; // seconds
   const int DEFAULT_HTTP_RESPONSE_TIMEOUT = 20; // seconds
-#ifdef CONFIG_HTTPREAD_CHUNK_SIZE
   const int HTTPREAD_CHUNK_SIZE = CONFIG_HTTPREAD_CHUNK_SIZE;
-#else
-  const int HTTPREAD_CHUNK_SIZE = 200;
-#endif
 
   // Network Registration implementation for each state
   NetworkRegistrationState _implCheckModuleReady();
