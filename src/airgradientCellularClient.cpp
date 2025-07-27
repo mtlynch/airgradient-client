@@ -15,10 +15,13 @@
 #include "agLogger.h"
 #include "config.h"
 
-// TODO: Use kconfig with default ONE_OPENAIR
 #define ONE_OPENAIR_POST_MEASURES_ENDPOINT "cts"
 #define OPENAIR_MAX_POST_MEASURES_ENDPOINT "cvn"
+#ifdef ARDUINO
+#define POST_MEASURES_ENDPOINT ONE_OPENAIR_POST_MEASURES_ENDPOINT
+#else
 #define POST_MEASURES_ENDPOINT OPENAIR_MAX_POST_MEASURES_ENDPOINT
+#endif
 
 AirgradientCellularClient::AirgradientCellularClient(CellularModule *cellularModule)
     : cell_(cellularModule) {}
