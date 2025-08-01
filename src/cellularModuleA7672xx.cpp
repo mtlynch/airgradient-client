@@ -5,10 +5,10 @@
  * CC BY-SA 4.0 Attribution-ShareAlike 4.0 International License
  */
 
-#include "freertos/idf_additions.h"
-#include "freertos/projdefs.h"
 #ifndef ESP8266
 
+#include "freertos/idf_additions.h"
+#include "freertos/projdefs.h"
 #include "cellularModuleA7672xx.h"
 #include <cstdint>
 #include <memory>
