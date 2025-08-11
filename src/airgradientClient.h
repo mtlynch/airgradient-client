@@ -45,19 +45,18 @@ public:
   virtual bool ensureClientConnection(bool reset);
   virtual std::string httpFetchConfig();
   virtual bool httpPostMeasures(const std::string &payload);
-  virtual bool httpPostMeasures(int measureInterval, std::vector<OpenAirMaxPayload> data);
+  virtual bool httpPostMeasures(int measureInterval, const std::vector<OpenAirMaxPayload> &data);
   virtual bool mqttConnect();
   virtual bool mqttDisconnect();
   virtual bool mqttPublishMeasures(const std::string &payload);
 
   // Implemented on base class, not override function
- 
 
   /**
-  * @brief set http url domain for http request. Eg: hw.airgradient.com
-  *
-  * @param target target domain that will be used
-  */
+   * @brief set http url domain for http request. Eg: hw.airgradient.com
+   *
+   * @param target target domain that will be used
+   */
   void setHttpDomain(const std::string &target);
   void setHttpDomainDefault();
   bool isClientReady();
