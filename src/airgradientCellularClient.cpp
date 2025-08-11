@@ -5,6 +5,7 @@
  * CC BY-SA 4.0 Attribution-ShareAlike 4.0 International License
  */
 
+#include "airgradientClient.h"
 #include <cmath>
 #ifndef ESP8266
 
@@ -26,9 +27,10 @@
 AirgradientCellularClient::AirgradientCellularClient(CellularModule *cellularModule)
     : cell_(cellularModule) {}
 
-bool AirgradientCellularClient::begin(std::string sn) {
+bool AirgradientCellularClient::begin(std::string sn, PayloadType pt) {
   // Update parent serialNumber variable
   serialNumber = sn;
+  payloadType = pt;
   clientReady = false;
 
   if (!cell_->init()) {
@@ -159,7 +161,7 @@ std::string AirgradientCellularClient::httpFetchConfig() {
 bool AirgradientCellularClient::httpPostMeasures(const std::string &payload) {
   char url[80] = {0};
   sprintf(url, "http://%s/sensors/%s/%s", httpDomain.c_str(), serialNumber.c_str(),
-          POST_MEASURES_ENDPOINT);
+          _getEndpoint().c_str());
   AG_LOGI(TAG, "Post measures to %s", url);
   AG_LOGI(TAG, "Payload: %s", payload.c_str());
 
@@ -188,25 +190,30 @@ bool AirgradientCellularClient::httpPostMeasures(const std::string &payload) {
   return true;
 }
 
-bool AirgradientCellularClient::httpPostMeasures(int measureInterval,
-                                                 const std::vector<OpenAirMaxPayload> &data) {
+bool AirgradientCellularClient::httpPostMeasures(const AirgradientPayload &payload) {
   // Build payload using oss, easier to manage if there's an invalid value that should not included
-  std::ostringstream payload;
+  std::ostringstream oss;
 
   // Add interval at the first position
-  payload << measureInterval;
+  oss << payload.measureInterval;
 
-  for (const OpenAirMaxPayload &v : data) {
-    // Seperator between measures cycle
-    payload << ",";
-    // Serialize each measurement
-    _serialize(payload, v.rco2, v.particleCount003, v.pm01, v.pm25, v.pm10, v.tvocRaw, v.noxRaw,
-               v.atmp, v.rhum, v.signal, v.vBat, v.vPanel, v.o3WorkingElectrode,
-               v.o3AuxiliaryElectrode, v.no2WorkingElectrode, v.no2AuxiliaryElectrode, v.afeTemp);
+  if (payloadType == MAX_WITH_O3_NO2 || payloadType == MAX_WITHOUT_O3_NO2) {
+    auto *sensor = static_cast<std::vector<MaxSensorPayload> *>(payload.sensor);
+    for (auto it = sensor->begin(); it != sensor->end(); ++it) {
+      // Seperator between measures cycle
+      oss << ",";
+      // Serialize each measurement
+      _serialize(oss, it->rco2, it->particleCount003, it->pm01, it->pm25, it->pm10, it->tvocRaw,
+                 it->noxRaw, it->atmp, it->rhum, payload.signal, it->vBat, it->vPanel,
+                 it->o3WorkingElectrode, it->o3AuxiliaryElectrode, it->no2WorkingElectrode,
+                 it->no2AuxiliaryElectrode, it->afeTemp);
+    }
+  } else {
+    // TODO: Add for OneOpenAir payload
   }
 
   // Compile it
-  std::string toSend = payload.str();
+  std::string toSend = oss.str();
 
   return httpPostMeasures(toSend);
 }
@@ -299,8 +306,11 @@ void AirgradientCellularClient::_serialize(std::ostringstream &oss, int rco2, in
   // Radio signal
   oss << signal;
 
-#ifndef ARDUINO
-  // TODO: Improvement so it is based on product model
+  // Only continue for MAX model
+  if (payloadType != MAX_WITH_O3_NO2 && payloadType != MAX_WITHOUT_O3_NO2) {
+    return;
+  }
+
   oss << ",";
   // V Battery
   if (IS_VOLT_VALID(vBat)) {
@@ -311,6 +321,12 @@ void AirgradientCellularClient::_serialize(std::ostringstream &oss, int rco2, in
   if (IS_VOLT_VALID(vPanel)) {
     oss << std::round(vPanel * 100);
   }
+
+  // Only continue for MAX with O3 and NO2
+  if (payloadType != MAX_WITH_O3_NO2) {
+    return;
+  }
+
   oss << ",";
   // Working Electrode O3
   if (IS_VOLT_VALID(o3WorkingElectrode)) {
@@ -336,7 +352,24 @@ void AirgradientCellularClient::_serialize(std::ostringstream &oss, int rco2, in
   if (IS_VOLT_VALID(afeTemp)) {
     oss << std::round(afeTemp * 10);
   }
-#endif
+}
+
+std::string AirgradientCellularClient::_getEndpoint() {
+  std::string endpoint;
+  switch (payloadType) {
+  case AirgradientClient::MAX_WITHOUT_O3_NO2:
+    endpoint = "cvl";
+    break;
+  case AirgradientClient::MAX_WITH_O3_NO2:
+    endpoint = "cvn";
+    break;
+  case AirgradientClient::ONE_OPENAIR:
+  case AirgradientClient::ONE_OPENAIR_TWO_PMS:
+    endpoint = "cts";
+    break;
+  };
+
+  return endpoint;
 }
 
 #endif // ESP8266

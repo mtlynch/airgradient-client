@@ -16,8 +16,9 @@
 #include "esp_http_client.h"
 #endif
 
-bool AirgradientWifiClient::begin(std::string sn) {
+bool AirgradientWifiClient::begin(std::string sn, PayloadType pt) {
   serialNumber = sn;
+  payloadType = pt;
   return true;
 }
 
@@ -121,7 +122,6 @@ bool AirgradientWifiClient::_httpGet(const std::string &url, int &responseCode,
                                          MAX_RESPONSE_BUFFER - totalRead)) > 0) {
     totalRead += readLen;
   }
-
 
   esp_http_client_close(client);
   esp_http_client_cleanup(client);

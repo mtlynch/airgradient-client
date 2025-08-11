@@ -9,7 +9,7 @@
 #include "common.h"
 #include <string>
 
-bool AirgradientClient::begin(std::string sn) { return true; }
+bool AirgradientClient::begin(std::string sn, PayloadType pt) { return true; }
 
 void AirgradientClient::setNetworkRegistrationTimeoutMs(int timeoutMs) {}
 
@@ -29,9 +29,7 @@ std::string AirgradientClient::httpFetchConfig() { return std::string(); }
 
 bool AirgradientClient::httpPostMeasures(const std::string &payload) { return false; }
 
-bool AirgradientClient::httpPostMeasures(int measureInterval, const std::vector<OpenAirMaxPayload> &data) {
-  return false;
-}
+bool AirgradientClient::httpPostMeasures(const AirgradientPayload &payload) { return false; }
 
 bool AirgradientClient::mqttConnect() { return false; }
 
