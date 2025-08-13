@@ -9,5 +9,5 @@ set(srcs
 
 idf_component_register(SRCS "${srcs}"
                     INCLUDE_DIRS "src"
-		    REQUIRES esp_timer AirgradientSerial esp_driver_gpio esp_http_client
+		    REQUIRES esp_timer AirgradientSerial esp_driver_gpio esp_http_client arduinojson
                     )

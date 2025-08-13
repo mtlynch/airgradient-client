@@ -11,6 +11,7 @@
 #ifndef ESP8266
 
 #include <string>
+#include <ArduinoJson.h>
 
 #include "airgradientClient.h"
 
@@ -32,10 +33,13 @@ public:
   bool begin(std::string sn, PayloadType pt);
   std::string httpFetchConfig();
   bool httpPostMeasures(const std::string &payload);
+  bool httpPostMeasures(const AirgradientPayload &payload);
 
 private:
   bool _httpGet(const std::string &url, int &responseCode, std::string &responseBody);
   bool _httpPost(const std::string &url, const std::string &payload, int &responseCode);
+  void _serialize(JsonDocument &doc, const MaxSensorPayload *payload);
+
 };
 
 #endif // ESP8266
