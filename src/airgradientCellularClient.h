@@ -8,6 +8,7 @@
 #ifndef AIRGRADIENT_CELLULAR_CLIENT_H
 #define AIRGRADIENT_CELLULAR_CLIENT_H
 
+#include <sstream>
 #ifndef ESP8266
 
 #include <string>
@@ -21,23 +22,30 @@ private:
   std::string _apn = "iot.1nce.net";
   std::string _iccid = "";
   CellularModule *cell_ = nullptr;
-
   int _networkRegistrationTimeoutMs = (3 * 60000);
 
 public:
   AirgradientCellularClient(CellularModule *cellularModule);
   ~AirgradientCellularClient() {};
 
-  bool begin(std::string sn);
+  bool begin(std::string sn, PayloadType pt);
   void setNetworkRegistrationTimeoutMs(int timeoutMs);
   std::string getICCID();
   bool ensureClientConnection(bool reset);
   std::string httpFetchConfig();
   bool httpPostMeasures(const std::string &payload);
-  bool httpPostMeasures(int measureInterval, std::vector<OpenAirMaxPayload> data);
+  bool httpPostMeasures(const AirgradientPayload &payload);
   bool mqttConnect();
   bool mqttDisconnect();
   bool mqttPublishMeasures(const std::string &payload);
+
+private:
+  std::string _getEndpoint();
+  void _serialize(std::ostringstream &oss, int rco2, int particleCount003, float pm01, float pm25,
+                  float pm10, int tvoc, int nox, float atmp, float rhum, int signal,
+                  float vBat = -1.0f, float vPanel = -1.0f, float o3WorkingElectrode = -1.0f,
+                  float o3AuxiliaryElectrode = -1.0f, float no2WorkingElectrode = -1.0f,
+                  float no2AuxiliaryElectrode = -1.0f, float afeTemp = -1.0f);
 };
 
 #endif // ESP8266

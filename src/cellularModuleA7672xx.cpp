@@ -1252,7 +1252,7 @@ CellReturnStatus CellularModuleA7672XX::_httpSetUrl(const std::string &url) {
 CellReturnStatus CellularModuleA7672XX::_httpAction(int httpMethodCode, int connectionTimeout,
                                                     int responseTimeout, int *oResponseCode,
                                                     int *oBodyLen) {
-  int code, bodyLen;
+  int code = -1, bodyLen = 0;
   int waitActionTimeout;
   std::string data;
 

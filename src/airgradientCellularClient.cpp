@@ -5,6 +5,7 @@
  * CC BY-SA 4.0 Attribution-ShareAlike 4.0 International License
  */
 
+#include "airgradientClient.h"
 #include <cmath>
 #ifndef ESP8266
 
@@ -26,9 +27,10 @@
 AirgradientCellularClient::AirgradientCellularClient(CellularModule *cellularModule)
     : cell_(cellularModule) {}
 
-bool AirgradientCellularClient::begin(std::string sn) {
+bool AirgradientCellularClient::begin(std::string sn, PayloadType pt) {
   // Update parent serialNumber variable
   serialNumber = sn;
+  payloadType = pt;
   clientReady = false;
 
   if (!cell_->init()) {
@@ -157,10 +159,9 @@ std::string AirgradientCellularClient::httpFetchConfig() {
 }
 
 bool AirgradientCellularClient::httpPostMeasures(const std::string &payload) {
-  // std::string url = buildPostMeasuresUrl();
   char url[80] = {0};
   sprintf(url, "http://%s/sensors/%s/%s", httpDomain.c_str(), serialNumber.c_str(),
-          POST_MEASURES_ENDPOINT);
+          _getEndpoint().c_str());
   AG_LOGI(TAG, "Post measures to %s", url);
   AG_LOGI(TAG, "Payload: %s", payload.c_str());
 
@@ -189,108 +190,30 @@ bool AirgradientCellularClient::httpPostMeasures(const std::string &payload) {
   return true;
 }
 
-bool AirgradientCellularClient::httpPostMeasures(int measureInterval,
-                                                 std::vector<OpenAirMaxPayload> data) {
+bool AirgradientCellularClient::httpPostMeasures(const AirgradientPayload &payload) {
   // Build payload using oss, easier to manage if there's an invalid value that should not included
-  std::ostringstream payload;
+  std::ostringstream oss;
 
   // Add interval at the first position
-  payload << measureInterval;
+  oss << payload.measureInterval;
 
-  for (const OpenAirMaxPayload &v : data) {
-    // Seperator between measures cycle
-    payload << ",";
-    // CO2
-    if (IS_CO2_VALID(v.rco2)) {
-      payload << std::round(v.rco2);
+  if (payloadType == MAX_WITH_O3_NO2 || payloadType == MAX_WITHOUT_O3_NO2) {
+    auto *sensor = static_cast<std::vector<MaxSensorPayload> *>(payload.sensor);
+    for (auto it = sensor->begin(); it != sensor->end(); ++it) {
+      // Seperator between measures cycle
+      oss << ",";
+      // Serialize each measurement
+      _serialize(oss, it->rco2, it->particleCount003, it->pm01, it->pm25, it->pm10, it->tvocRaw,
+                 it->noxRaw, it->atmp, it->rhum, payload.signal, it->vBat, it->vPanel,
+                 it->o3WorkingElectrode, it->o3AuxiliaryElectrode, it->no2WorkingElectrode,
+                 it->no2AuxiliaryElectrode, it->afeTemp);
     }
-    payload << ",";
-    // Temperature
-    if (IS_TEMPERATURE_VALID(v.atmp)) {
-      payload << std::round(v.atmp * 10);
-    }
-    payload << ",";
-    // Humidity
-    if (IS_HUMIDITY_VALID(v.rhum)) {
-      payload << std::round(v.rhum * 10);
-    }
-    payload << ",";
-    // PM1.0 atmospheric environment
-    if (IS_PM_VALID(v.pm01)) {
-      payload << std::round(v.pm01 * 10);
-    }
-    payload << ",";
-    // PM2.5 atmospheric environment
-    if (IS_PM_VALID(v.pm25)) {
-      payload << std::round(v.pm25 * 10);
-    }
-    payload << ",";
-    // PM10 atmospheric environment
-    if (IS_PM_VALID(v.pm10)) {
-      payload << std::round(v.pm10 * 10);
-    }
-    payload << ",";
-    // TVOC
-    if (IS_TVOC_VALID(v.tvocRaw)) {
-      payload << v.tvocRaw;
-    }
-    payload << ",";
-    // NOx
-    if (IS_NOX_VALID(v.noxRaw)) {
-      payload << v.noxRaw;
-    }
-    payload << ",";
-    // PM 0.3 particle count
-    if (IS_PM_VALID(v.particleCount003)) {
-      payload << v.particleCount003;
-    }
-    payload << ",";
-    // Radio signal
-    if (v.signal > 0) {
-      int dbm = cell_->csqToDbm(v.signal);
-      if (dbm != 0) {
-        payload << dbm;
-      }
-    }
-    payload << ",";
-    // V Battery
-    if (IS_VOLT_VALID(v.vBat)) {
-      payload << std::round(v.vBat * 100);
-    }
-    payload << ",";
-    // V Solar Panel
-    if (IS_VOLT_VALID(v.vPanel)) {
-      payload << std::round(v.vPanel * 100);
-    }
-    payload << ",";
-    // Working Electrode O3
-    if (IS_VOLT_VALID(v.o3WorkingElectrode)) {
-      payload << std::round(v.o3WorkingElectrode * 1000);
-    }
-    payload << ",";
-    // Auxiliary Electrode O3
-    if (IS_VOLT_VALID(v.o3AuxiliaryElectrode)) {
-      payload << std::round(v.o3AuxiliaryElectrode * 1000);
-    }
-    payload << ",";
-    // Working Electrode NO2
-    if (IS_VOLT_VALID(v.no2WorkingElectrode)) {
-      payload << std::round(v.no2WorkingElectrode * 1000);
-    }
-    payload << ",";
-    // Auxiliary Electrode NO2
-    if (IS_VOLT_VALID(v.no2AuxiliaryElectrode)) {
-      payload << std::round(v.no2AuxiliaryElectrode * 1000);
-    }
-    payload << ",";
-    // AFE Temperature
-    if (IS_VOLT_VALID(v.afeTemp)) {
-      payload << std::round(v.afeTemp * 10);
-    }
+  } else {
+    // TODO: Add for OneOpenAir payload
   }
 
   // Compile it
-  std::string toSend = payload.str();
+  std::string toSend = oss.str();
 
   return httpPostMeasures(toSend);
 }
@@ -327,6 +250,126 @@ bool AirgradientCellularClient::mqttPublishMeasures(const std::string &payload) 
   AG_LOGI(TAG, "Success publish measures to mqtt server");
 
   return true;
+}
+
+void AirgradientCellularClient::_serialize(std::ostringstream &oss, int rco2, int particleCount003,
+                                           float pm01, float pm25, float pm10, int tvoc, int nox,
+                                           float atmp, float rhum, int signal, float vBat,
+                                           float vPanel, float o3WorkingElectrode,
+                                           float o3AuxiliaryElectrode, float no2WorkingElectrode,
+                                           float no2AuxiliaryElectrode, float afeTemp) {
+  // CO2
+  if (IS_CO2_VALID(rco2)) {
+    oss << std::round(rco2);
+  }
+  oss << ",";
+  // Temperature
+  if (IS_TEMPERATURE_VALID(atmp)) {
+    oss << std::round(atmp * 10);
+  }
+  oss << ",";
+  // Humidity
+  if (IS_HUMIDITY_VALID(rhum)) {
+    oss << std::round(rhum * 10);
+  }
+  oss << ",";
+  // PM1.0 atmospheric environment
+  if (IS_PM_VALID(pm01)) {
+    oss << std::round(pm01 * 10);
+  }
+  oss << ",";
+  // PM2.5 atmospheric environment
+  if (IS_PM_VALID(pm25)) {
+    oss << std::round(pm25 * 10);
+  }
+  oss << ",";
+  // PM10 atmospheric environment
+  if (IS_PM_VALID(pm10)) {
+    oss << std::round(pm10 * 10);
+  }
+  oss << ",";
+  // TVOC
+  if (IS_TVOC_VALID(tvoc)) {
+    oss << tvoc;
+  }
+  oss << ",";
+  // NOx
+  if (IS_NOX_VALID(nox)) {
+    oss << nox;
+  }
+  oss << ",";
+  // PM 0.3 particle count
+  if (IS_PM_VALID(particleCount003)) {
+    oss << particleCount003;
+  }
+  oss << ",";
+  // Radio signal
+  oss << signal;
+
+  // Only continue for MAX model
+  if (payloadType != MAX_WITH_O3_NO2 && payloadType != MAX_WITHOUT_O3_NO2) {
+    return;
+  }
+
+  oss << ",";
+  // V Battery
+  if (IS_VOLT_VALID(vBat)) {
+    oss << std::round(vBat * 100);
+  }
+  oss << ",";
+  // V Solar Panel
+  if (IS_VOLT_VALID(vPanel)) {
+    oss << std::round(vPanel * 100);
+  }
+
+  // Only continue for MAX with O3 and NO2
+  if (payloadType != MAX_WITH_O3_NO2) {
+    return;
+  }
+
+  oss << ",";
+  // Working Electrode O3
+  if (IS_VOLT_VALID(o3WorkingElectrode)) {
+    oss << std::round(o3WorkingElectrode * 1000);
+  }
+  oss << ",";
+  // Auxiliary Electrode O3
+  if (IS_VOLT_VALID(o3AuxiliaryElectrode)) {
+    oss << std::round(o3AuxiliaryElectrode * 1000);
+  }
+  oss << ",";
+  // Working Electrode NO2
+  if (IS_VOLT_VALID(no2WorkingElectrode)) {
+    oss << std::round(no2WorkingElectrode * 1000);
+  }
+  oss << ",";
+  // Auxiliary Electrode NO2
+  if (IS_VOLT_VALID(no2AuxiliaryElectrode)) {
+    oss << std::round(no2AuxiliaryElectrode * 1000);
+  }
+  oss << ",";
+  // AFE Temperature
+  if (IS_VOLT_VALID(afeTemp)) {
+    oss << std::round(afeTemp * 10);
+  }
+}
+
+std::string AirgradientCellularClient::_getEndpoint() {
+  std::string endpoint;
+  switch (payloadType) {
+  case AirgradientClient::MAX_WITHOUT_O3_NO2:
+    endpoint = "cvl";
+    break;
+  case AirgradientClient::MAX_WITH_O3_NO2:
+    endpoint = "cvn";
+    break;
+  case AirgradientClient::ONE_OPENAIR:
+  case AirgradientClient::ONE_OPENAIR_TWO_PMS:
+    endpoint = "cts";
+    break;
+  };
+
+  return endpoint;
 }
 
 #endif // ESP8266

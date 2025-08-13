@@ -8,6 +8,7 @@
 #ifndef AIRGRADIENT_CLIENT_H
 #define AIRGRADIENT_CLIENT_H
 
+#include "common.h"
 #include <string>
 #include <vector>
 
@@ -19,7 +20,7 @@ public:
   AirgradientClient() {};
   virtual ~AirgradientClient() {};
 
-  struct OpenAirMaxPayload {
+  struct MaxSensorPayload {
     int rco2;
     int particleCount003;
     float pm01;
@@ -31,7 +32,6 @@ public:
     float rhum;
     float vBat;
     float vPanel;
-    int signal;
     float o3WorkingElectrode;
     float o3AuxiliaryElectrode;
     float no2WorkingElectrode;
@@ -39,25 +39,37 @@ public:
     float afeTemp;
   };
 
-  virtual bool begin(std::string sn);
+  enum PayloadType {
+    MAX_WITH_O3_NO2 = 0,
+    MAX_WITHOUT_O3_NO2 = 1,
+    ONE_OPENAIR,
+    ONE_OPENAIR_TWO_PMS
+  };
+
+  struct AirgradientPayload {
+    int measureInterval = 0;
+    int signal;
+    void *sensor;
+  };
+
+  virtual bool begin(std::string sn, PayloadType pt);
   virtual void setNetworkRegistrationTimeoutMs(int timeoutMs);
   virtual std::string getICCID();
   virtual bool ensureClientConnection(bool reset);
   virtual std::string httpFetchConfig();
   virtual bool httpPostMeasures(const std::string &payload);
-  virtual bool httpPostMeasures(int measureInterval, std::vector<OpenAirMaxPayload> data);
+  virtual bool httpPostMeasures(const AirgradientPayload &payload);
   virtual bool mqttConnect();
   virtual bool mqttDisconnect();
   virtual bool mqttPublishMeasures(const std::string &payload);
 
   // Implemented on base class, not override function
- 
 
   /**
-  * @brief set http url domain for http request. Eg: hw.airgradient.com
-  *
-  * @param target target domain that will be used
-  */
+   * @brief set http url domain for http request. Eg: hw.airgradient.com
+   *
+   * @param target target domain that will be used
+   */
   void setHttpDomain(const std::string &target);
   void setHttpDomainDefault();
   bool isClientReady();
@@ -69,6 +81,7 @@ public:
   bool isRegisteredOnAgServer();
 
 protected:
+  PayloadType payloadType;
   std::string httpDomain = AIRGRADIENT_HTTP_DOMAIN;
   const char *const mqttDomain = "128.140.86.189";
   const int mqttPort = 1883;
