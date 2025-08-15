@@ -57,7 +57,7 @@ bool AirgradientWifiClient::begin(std::string sn, PayloadType pt) {
 }
 
 std::string AirgradientWifiClient::httpFetchConfig() {
-  std::string url = buildFetchConfigUrl(true);
+  std::string url = buildFetchConfigUrl(false);
   AG_LOGI(TAG, "Fetch configuration from %s", url.c_str());
 
   // Perform HTTP GET
@@ -97,7 +97,7 @@ std::string AirgradientWifiClient::httpFetchConfig() {
   return responseBody;
 }
 bool AirgradientWifiClient::httpPostMeasures(const std::string &payload) {
-  std::string url = buildPostMeasuresUrl(true);
+  std::string url = buildPostMeasuresUrl(false);
   AG_LOGI(TAG, "Post measures to %s", url.c_str());
   AG_LOGI(TAG, "Payload: %s", payload.c_str());
 
