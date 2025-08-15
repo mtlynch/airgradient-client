@@ -53,6 +53,7 @@ public:
   };
 
   virtual bool begin(std::string sn, PayloadType pt);
+  virtual void setAPN(const std::string &apn);
   virtual void setNetworkRegistrationTimeoutMs(int timeoutMs);
   virtual std::string getICCID();
   virtual bool ensureClientConnection(bool reset);

@@ -16,10 +16,12 @@
 #include "airgradientClient.h"
 #include "cellularModule.h"
 
+#define DEFAULT_AIRGRADIENT_APN "iot.1nce.net"
+
 class AirgradientCellularClient : public AirgradientClient {
 private:
   const char *const TAG = "AgCellClient";
-  std::string _apn = "iot.1nce.net";
+  std::string _apn = DEFAULT_AIRGRADIENT_APN;
   std::string _iccid = "";
   CellularModule *cell_ = nullptr;
   int _networkRegistrationTimeoutMs = (3 * 60000);
@@ -29,6 +31,7 @@ public:
   ~AirgradientCellularClient() {};
 
   bool begin(std::string sn, PayloadType pt);
+  void setAPN(const std::string &apn);
   void setNetworkRegistrationTimeoutMs(int timeoutMs);
   std::string getICCID();
   bool ensureClientConnection(bool reset);

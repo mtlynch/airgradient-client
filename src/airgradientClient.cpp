@@ -11,6 +11,8 @@
 
 bool AirgradientClient::begin(std::string sn, PayloadType pt) { return true; }
 
+void AirgradientClient::setAPN(const std::string &apn) {}
+
 void AirgradientClient::setNetworkRegistrationTimeoutMs(int timeoutMs) {}
 
 std::string AirgradientClient::getICCID() { return ""; }

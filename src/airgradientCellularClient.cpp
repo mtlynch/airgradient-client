@@ -67,6 +67,8 @@ bool AirgradientCellularClient::begin(std::string sn, PayloadType pt) {
   return true;
 }
 
+void AirgradientCellularClient::setAPN(const std::string &apn) { _apn = apn; }
+
 void AirgradientCellularClient::setNetworkRegistrationTimeoutMs(int timeoutMs) {
   _networkRegistrationTimeoutMs = timeoutMs;
   ESP_LOGI(TAG, "Timeout set to %d seconds", (_networkRegistrationTimeoutMs / 1000));
