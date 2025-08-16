@@ -29,6 +29,7 @@ std::string AirgradientWifiClient::httpFetchConfig() {
   // Using HTTP without TLS
   if (client.begin(String(url.c_str())) == false) {
     AG_LOGE(TAG, "Failed begin HTTPClient");
+    client.end();
     lastFetchConfigSucceed = false;
     return {};
   }
@@ -73,6 +74,7 @@ bool AirgradientWifiClient::httpPostMeasures(const std::string &payload) {
   // Using HTTP without TLS
   if (client.begin(String(url.c_str())) == false) {
     AG_LOGE(TAG, "Failed begin HTTPClient");
+    client.end();
     lastPostMeasuresSucceed = false;
     return false;
   }
