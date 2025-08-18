@@ -37,7 +37,7 @@ bool AirgradientClient::mqttConnect() { return false; }
 
 bool AirgradientClient::mqttConnect(const char *uri) { return false; }
 
-bool AirgradientClient::mqttConnect(const char *host, int port) { return false; }
+bool AirgradientClient::mqttConnect(const std::string &host, int port, std::string username, std::string password) { return false; }
 
 bool AirgradientClient::mqttDisconnect() { return false; }
 

@@ -71,7 +71,7 @@ void AirgradientCellularClient::setAPN(const std::string &apn) { _apn = apn; }
 
 void AirgradientCellularClient::setNetworkRegistrationTimeoutMs(int timeoutMs) {
   _networkRegistrationTimeoutMs = timeoutMs;
-  ESP_LOGI(TAG, "Timeout set to %d seconds", (_networkRegistrationTimeoutMs / 1000));
+  AG_LOGI(TAG, "Timeout set to %d seconds", (_networkRegistrationTimeoutMs / 1000));
 }
 
 std::string AirgradientCellularClient::getICCID() { return _iccid; }
@@ -220,42 +220,49 @@ bool AirgradientCellularClient::httpPostMeasures(const AirgradientPayload &paylo
   return httpPostMeasures(toSend);
 }
 
-bool AirgradientCellularClient::mqttConnect() {
-  return mqttConnect(mqttDomain, mqttPort);
-}
+bool AirgradientCellularClient::mqttConnect() { return mqttConnect(mqttDomain, mqttPort); }
 
 bool AirgradientCellularClient::mqttConnect(const char *uri) {
-  // Get host and port from the uri. Eg: mqtt://mqttbroker.com:1883
-  std::string tmp(uri + 7); // skip "mqtt://"
+  // Get connection properties from uri; Eg: mqtt://username:password@mqttbroker.com:1883
+  std::string protocol;
+  std::string username;
+  std::string password;
   std::string host;
-  std::string port;
-  Common::splitByDelimiter(tmp, host, port, ':');
-  if (host.empty() || port.empty()) {
-    ESP_LOGE(TAG, "MQTT host or port is empty");
+  int port = -1;
+  Common::parseUri(uri, protocol, username, password, host, port);
+
+  if (host.empty()) {
+    AG_LOGE(TAG, "MQTT host or port is empty");
     return false;
   }
 
-  return mqttConnect(host.c_str(), std::stoi(port));
+  if (port == -1) {
+    port = 1883;
+  }
+
+  return mqttConnect(host, port, username, password);
 }
 
-bool AirgradientCellularClient::mqttConnect(const char *host, int port) {
-  ESP_LOGI(TAG, "Attempt connection to MQTT broker: %s:%d", host, port);
-  auto result = cell_->mqttConnect(serialNumber, host, port);
+bool AirgradientCellularClient::mqttConnect(const std::string &host, int port, std::string username,
+                                            std::string password) {
+
+  AG_LOGI(TAG, "Attempt connection to MQTT broker: %s:%d", host.c_str(), port);
+  auto result = cell_->mqttConnect(serialNumber, host, port, username, password);
   if (result != CellReturnStatus::Ok) {
-    AG_LOGE(TAG, "Failed connect to airgradient mqtt server");
+    AG_LOGE(TAG, "Failed connect to mqtt broker");
     return false;
   }
-  AG_LOGI(TAG, "Success connect to airgardient mqtt server");
+  AG_LOGI(TAG, "Success connect to mqtt broker");
 
   return true;
 }
 
 bool AirgradientCellularClient::mqttDisconnect() {
   if (cell_->mqttDisconnect() != CellReturnStatus::Ok) {
-    AG_LOGE(TAG, "Failed disconnect from airgradient mqtt server");
+    AG_LOGE(TAG, "Failed disconnect from mqtt broker");
     return false;
   }
-  AG_LOGI(TAG, "Success disconnect from airgradient mqtt server");
+  AG_LOGI(TAG, "Success disconnect from mqtt broker");
 
   return true;
 }

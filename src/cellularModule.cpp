@@ -56,7 +56,7 @@ CellularModule::httpPost(const std::string &url, const std::string &body,
 }
 
 CellReturnStatus CellularModule::mqttConnect(const std::string &clientId, const std::string &host,
-                                             int port) {
+                                             int port, std::string username, std::string password) {
   return CellReturnStatus::Error;
 }
 

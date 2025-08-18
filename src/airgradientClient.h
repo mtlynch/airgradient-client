@@ -62,7 +62,7 @@ public:
   virtual bool httpPostMeasures(const AirgradientPayload &payload);
   virtual bool mqttConnect();
   virtual bool mqttConnect(const char *uri);
-  virtual bool mqttConnect(const char *host, int port);
+  virtual bool mqttConnect(const std::string &host, int port, std::string username = "", std::string password = "");
   virtual bool mqttDisconnect();
   virtual bool mqttPublishMeasures(const std::string &payload);
 

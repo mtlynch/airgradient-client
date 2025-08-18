@@ -608,8 +608,9 @@ CellularModuleA7672XX::httpPost(const std::string &url, const std::string &body,
 }
 
 CellReturnStatus CellularModuleA7672XX::mqttConnect(const std::string &clientId,
-                                                    const std::string &host, int port) {
-  char buf[150] = {0};
+                                                    const std::string &host, int port,
+                                                    std::string username, std::string password) {
+  char buf[200] = {0};
   std::string result;
 
   // +CMQTTSTART
@@ -648,8 +649,19 @@ CellReturnStatus CellularModuleA7672XX::mqttConnect(const std::string &clientId,
 
   // +CMQTTCONNECT
   // keep alive 120; cleansession 1
-  memset(buf, 0, 150);
-  sprintf(buf, "+CMQTTCONNECT=0,\"tcp://%s:%d\",120,1", host.c_str(), port);
+  memset(buf, 0, 200);
+  if (username != "" && password != "") {
+    // Both username and password provided
+    AG_LOGI(TAG, "Connect with credentials");
+    sprintf(buf, "+CMQTTCONNECT=0,\"tcp://%s:%d\",120,1,%s,%s", host.c_str(), port,
+            username.c_str(), password.c_str());
+  } else if (username != "") {
+    // Only username that is provided 
+    sprintf(buf, "+CMQTTCONNECT=0,\"tcp://%s:%d\",120,1,%s", host.c_str(), port, username.c_str());
+  } else {
+    // No credentials
+    sprintf(buf, "+CMQTTCONNECT=0,\"tcp://%s:%d\",120,1", host.c_str(), port);
+  }
   at_->sendAT(buf);
   if (at_->waitResponse(30000, "+CMQTTCONNECT: 0,") != ATCommandHandler::ExpArg1) {
     at_->clearBuffer();
