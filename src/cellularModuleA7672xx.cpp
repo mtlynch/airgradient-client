@@ -652,12 +652,14 @@ CellReturnStatus CellularModuleA7672XX::mqttConnect(const std::string &clientId,
   memset(buf, 0, 200);
   if (username != "" && password != "") {
     // Both username and password provided
-    AG_LOGI(TAG, "Connect with credentials");
-    sprintf(buf, "+CMQTTCONNECT=0,\"tcp://%s:%d\",120,1,%s,%s", host.c_str(), port,
+    AG_LOGI(TAG, "Connect with username and password");
+    sprintf(buf, "+CMQTTCONNECT=0,\"tcp://%s:%d\",120,1,\"%s\",\"%s\"", host.c_str(), port,
             username.c_str(), password.c_str());
   } else if (username != "") {
-    // Only username that is provided 
-    sprintf(buf, "+CMQTTCONNECT=0,\"tcp://%s:%d\",120,1,%s", host.c_str(), port, username.c_str());
+    // Only username that is provided
+    AG_LOGI(TAG, "Connect with username only");
+    sprintf(buf, "+CMQTTCONNECT=0,\"tcp://%s:%d\",120,1,\"%s\"", host.c_str(), port,
+            username.c_str());
   } else {
     // No credentials
     sprintf(buf, "+CMQTTCONNECT=0,\"tcp://%s:%d\",120,1", host.c_str(), port);
@@ -665,7 +667,7 @@ CellReturnStatus CellularModuleA7672XX::mqttConnect(const std::string &clientId,
   at_->sendAT(buf);
   if (at_->waitResponse(30000, "+CMQTTCONNECT: 0,") != ATCommandHandler::ExpArg1) {
     at_->clearBuffer();
-    return CellReturnStatus::Ok;
+    return CellReturnStatus::Error;
   }
 
   if (at_->waitAndRecvRespLine(result) == -1) {
