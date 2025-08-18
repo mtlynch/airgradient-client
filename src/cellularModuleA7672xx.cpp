@@ -1292,7 +1292,7 @@ CellReturnStatus CellularModuleA7672XX::_httpAction(int httpMethodCode, int conn
 
   // 0,code,size
   // start from code, ignore 0 (GET)
-  Common::splitByComma(data.substr(2, data.length()), &code, &bodyLen);
+  Common::splitByDelimiter(data.substr(2, data.length()), &code, &bodyLen);
   if (code == -1 || (code > 700 && code < 720)) {
     // -1 means string cannot splitted by comma
     // 7xx This is error code <errcode> not http <status_code>

@@ -21,12 +21,19 @@
 
 class Common {
 public:
-  static void splitByComma(const std::string &data, int *v1, int *v2) {
-    size_t pos = data.find(",");
+  static void splitByDelimiter(const std::string &data, int *v1, int *v2, char delimiter = ',') {
+    size_t pos = data.find(delimiter);
     if (pos != std::string::npos) {
-      // Ignore <ber> value, only <rssi>
       *v1 = std::stoi(data.substr(0, pos));
       *v2 = std::stoi(data.substr(pos + 1, data.length()));
+    }
+
+  }
+  static void splitByDelimiter(const std::string &data, std::string &v1, std::string &v2, char delimiter = ',') {
+    size_t pos = data.find(delimiter);
+    if (pos != std::string::npos) {
+      v1 = data.substr(0, pos);
+      v2 = data.substr(pos + 1, data.length());
     }
   }
 };
