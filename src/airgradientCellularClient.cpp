@@ -270,6 +270,8 @@ bool AirgradientCellularClient::mqttDisconnect() {
 bool AirgradientCellularClient::mqttPublishMeasures(const std::string &payload) {
   // TODO: Ensure mqtt connection
   auto topic = buildMqttTopicPublishMeasures();
+  AG_LOGI(TAG, "Publish to %s", topic.c_str());
+  AG_LOGI(TAG, "Payload: %s", payload.c_str());
   auto result = cell_->mqttPublish(topic, payload);
   if (result != CellReturnStatus::Ok) {
     AG_LOGE(TAG, "Failed publish measures to mqtt server");
@@ -278,6 +280,35 @@ bool AirgradientCellularClient::mqttPublishMeasures(const std::string &payload) 
   AG_LOGI(TAG, "Success publish measures to mqtt server");
 
   return true;
+}
+
+bool AirgradientCellularClient::mqttPublishMeasures(const AirgradientPayload &payload) {
+
+  // Build payload using oss, easier to manage if there's an invalid value that should not included
+  std::ostringstream oss;
+
+  // Add interval at the first position
+  oss << payload.measureInterval;
+
+  if (payloadType == MAX_WITH_O3_NO2 || payloadType == MAX_WITHOUT_O3_NO2) {
+    auto *sensor = static_cast<std::vector<MaxSensorPayload> *>(payload.sensor);
+    for (auto it = sensor->begin(); it != sensor->end(); ++it) {
+      // Seperator between measures cycle
+      oss << ",";
+      // Serialize each measurement
+      _serialize(oss, it->rco2, it->particleCount003, it->pm01, it->pm25, it->pm10, it->tvocRaw,
+                 it->noxRaw, it->atmp, it->rhum, payload.signal, it->vBat, it->vPanel,
+                 it->o3WorkingElectrode, it->o3AuxiliaryElectrode, it->no2WorkingElectrode,
+                 it->no2AuxiliaryElectrode, it->afeTemp);
+    }
+  } else {
+    // TODO: Add for OneOpenAir payload
+  }
+
+  // Compile it
+  std::string toSend = oss.str();
+
+  return mqttPublishMeasures(toSend);
 }
 
 void AirgradientCellularClient::_serialize(std::ostringstream &oss, int rco2, int particleCount003,

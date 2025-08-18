@@ -65,6 +65,7 @@ public:
   virtual bool mqttConnect(const std::string &host, int port, std::string username = "", std::string password = "");
   virtual bool mqttDisconnect();
   virtual bool mqttPublishMeasures(const std::string &payload);
+  virtual bool mqttPublishMeasures(const AirgradientPayload &payload);
 
   // Implemented on base class, not override function
 

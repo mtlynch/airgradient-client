@@ -729,7 +729,7 @@ CellReturnStatus CellularModuleA7672XX::mqttPublish(const std::string &topic,
                                                     const std::string &payload, int qos, int retain,
                                                     int timeoutS) {
 
-  char buf[50] = {0};
+  char buf[1000] = {0};
   std::string result;
 
   // +CMQTTTOPIC
@@ -751,7 +751,7 @@ CellReturnStatus CellularModuleA7672XX::mqttPublish(const std::string &topic,
   }
 
   // +CMQTTPAYLOAD
-  memset(buf, 0, 50);
+  memset(buf, 0, 1000);
   sprintf(buf, "+CMQTTPAYLOAD=0,%d", payload.length());
   at_->sendAT(buf);
   if (at_->waitResponse(">") != ATCommandHandler::ExpArg1) {
@@ -769,7 +769,7 @@ CellReturnStatus CellularModuleA7672XX::mqttPublish(const std::string &topic,
     return CellReturnStatus::Error;
   }
 
-  memset(buf, 0, 50);
+  memset(buf, 0, 1000);
   sprintf(buf, "+CMQTTPUB=0,%d,%d,%d", qos, timeoutS, retain);
   int timeoutMs = timeoutS * 1000;
   at_->sendAT(buf);

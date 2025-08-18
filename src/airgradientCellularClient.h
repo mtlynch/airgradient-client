@@ -43,6 +43,7 @@ public:
   bool mqttConnect(const std::string &host, int port, std::string username = "", std::string password = "");
   bool mqttDisconnect();
   bool mqttPublishMeasures(const std::string &payload);
+  bool mqttPublishMeasures(const AirgradientPayload &payload);
 
 private:
   std::string _getEndpoint();

@@ -37,11 +37,16 @@ bool AirgradientClient::mqttConnect() { return false; }
 
 bool AirgradientClient::mqttConnect(const char *uri) { return false; }
 
-bool AirgradientClient::mqttConnect(const std::string &host, int port, std::string username, std::string password) { return false; }
+bool AirgradientClient::mqttConnect(const std::string &host, int port, std::string username,
+                                    std::string password) {
+  return false;
+}
 
 bool AirgradientClient::mqttDisconnect() { return false; }
 
 bool AirgradientClient::mqttPublishMeasures(const std::string &payload) { return false; }
+
+bool AirgradientClient::mqttPublishMeasures(const AirgradientPayload &payload) { return false; }
 
 void AirgradientClient::resetFetchConfigurationStatus() { lastFetchConfigSucceed = true; }
 
