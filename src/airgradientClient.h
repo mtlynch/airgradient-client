@@ -61,6 +61,8 @@ public:
   virtual bool httpPostMeasures(const std::string &payload);
   virtual bool httpPostMeasures(const AirgradientPayload &payload);
   virtual bool mqttConnect();
+  virtual bool mqttConnect(const char *uri);
+  virtual bool mqttConnect(const char *host, int port);
   virtual bool mqttDisconnect();
   virtual bool mqttPublishMeasures(const std::string &payload);
 
@@ -84,7 +86,7 @@ public:
 protected:
   PayloadType payloadType;
   std::string httpDomain = AIRGRADIENT_HTTP_DOMAIN;
-  const char *const mqttDomain = "128.140.86.189";
+  const char *const mqttDomain = "api.airgradient.com";
   const int mqttPort = 1883;
   const char *const AG_SERVER_ROOT_CA =
       "-----BEGIN CERTIFICATE-----\n"

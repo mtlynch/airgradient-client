@@ -221,7 +221,26 @@ bool AirgradientCellularClient::httpPostMeasures(const AirgradientPayload &paylo
 }
 
 bool AirgradientCellularClient::mqttConnect() {
-  auto result = cell_->mqttConnect(serialNumber, mqttDomain, mqttPort);
+  return mqttConnect(mqttDomain, mqttPort);
+}
+
+bool AirgradientCellularClient::mqttConnect(const char *uri) {
+  // Get host and port from the uri. Eg: mqtt://mqttbroker.com:1883
+  std::string tmp(uri + 7); // skip "mqtt://"
+  std::string host;
+  std::string port;
+  Common::splitByDelimiter(tmp, host, port, ':');
+  if (host.empty() || port.empty()) {
+    ESP_LOGE(TAG, "MQTT host or port is empty");
+    return false;
+  }
+
+  return mqttConnect(host.c_str(), std::stoi(port));
+}
+
+bool AirgradientCellularClient::mqttConnect(const char *host, int port) {
+  ESP_LOGI(TAG, "Attempt connection to MQTT broker: %s:%d", host, port);
+  auto result = cell_->mqttConnect(serialNumber, host, port);
   if (result != CellReturnStatus::Ok) {
     AG_LOGE(TAG, "Failed connect to airgradient mqtt server");
     return false;

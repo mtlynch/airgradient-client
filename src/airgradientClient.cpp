@@ -35,6 +35,10 @@ bool AirgradientClient::httpPostMeasures(const AirgradientPayload &payload) { re
 
 bool AirgradientClient::mqttConnect() { return false; }
 
+bool AirgradientClient::mqttConnect(const char *uri) { return false; }
+
+bool AirgradientClient::mqttConnect(const char *host, int port) { return false; }
+
 bool AirgradientClient::mqttDisconnect() { return false; }
 
 bool AirgradientClient::mqttPublishMeasures(const std::string &payload) { return false; }
