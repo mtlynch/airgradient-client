@@ -88,6 +88,6 @@ std::string AirgradientClient::buildPostMeasuresUrl(bool useHttps) {
 
 std::string AirgradientClient::buildMqttTopicPublishMeasures() {
   char topic[50] = {0};
-  sprintf(topic, "ag/%s/c-c", serialNumber.c_str());
+  sprintf(topic, "airgradient/readings/%s/ce", serialNumber.c_str());
   return topic;
 }
