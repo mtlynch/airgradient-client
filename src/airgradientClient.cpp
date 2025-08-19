@@ -35,9 +35,18 @@ bool AirgradientClient::httpPostMeasures(const AirgradientPayload &payload) { re
 
 bool AirgradientClient::mqttConnect() { return false; }
 
+bool AirgradientClient::mqttConnect(const char *uri) { return false; }
+
+bool AirgradientClient::mqttConnect(const std::string &host, int port, std::string username,
+                                    std::string password) {
+  return false;
+}
+
 bool AirgradientClient::mqttDisconnect() { return false; }
 
 bool AirgradientClient::mqttPublishMeasures(const std::string &payload) { return false; }
+
+bool AirgradientClient::mqttPublishMeasures(const AirgradientPayload &payload) { return false; }
 
 void AirgradientClient::resetFetchConfigurationStatus() { lastFetchConfigSucceed = true; }
 
@@ -79,6 +88,6 @@ std::string AirgradientClient::buildPostMeasuresUrl(bool useHttps) {
 
 std::string AirgradientClient::buildMqttTopicPublishMeasures() {
   char topic[50] = {0};
-  sprintf(topic, "ag/%s/c-c", serialNumber.c_str());
+  sprintf(topic, "airgradient/readings/%s/ce", serialNumber.c_str());
   return topic;
 }

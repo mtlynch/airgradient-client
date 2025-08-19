@@ -608,8 +608,9 @@ CellularModuleA7672XX::httpPost(const std::string &url, const std::string &body,
 }
 
 CellReturnStatus CellularModuleA7672XX::mqttConnect(const std::string &clientId,
-                                                    const std::string &host, int port) {
-  char buf[150] = {0};
+                                                    const std::string &host, int port,
+                                                    std::string username, std::string password) {
+  char buf[200] = {0};
   std::string result;
 
   // +CMQTTSTART
@@ -648,12 +649,25 @@ CellReturnStatus CellularModuleA7672XX::mqttConnect(const std::string &clientId,
 
   // +CMQTTCONNECT
   // keep alive 120; cleansession 1
-  memset(buf, 0, 150);
-  sprintf(buf, "+CMQTTCONNECT=0,\"tcp://%s:%d\",120,1", host.c_str(), port);
+  memset(buf, 0, 200);
+  if (username != "" && password != "") {
+    // Both username and password provided
+    AG_LOGI(TAG, "Connect with username and password");
+    sprintf(buf, "+CMQTTCONNECT=0,\"tcp://%s:%d\",120,1,\"%s\",\"%s\"", host.c_str(), port,
+            username.c_str(), password.c_str());
+  } else if (username != "") {
+    // Only username that is provided
+    AG_LOGI(TAG, "Connect with username only");
+    sprintf(buf, "+CMQTTCONNECT=0,\"tcp://%s:%d\",120,1,\"%s\"", host.c_str(), port,
+            username.c_str());
+  } else {
+    // No credentials
+    sprintf(buf, "+CMQTTCONNECT=0,\"tcp://%s:%d\",120,1", host.c_str(), port);
+  }
   at_->sendAT(buf);
   if (at_->waitResponse(30000, "+CMQTTCONNECT: 0,") != ATCommandHandler::ExpArg1) {
     at_->clearBuffer();
-    return CellReturnStatus::Ok;
+    return CellReturnStatus::Error;
   }
 
   if (at_->waitAndRecvRespLine(result) == -1) {
@@ -714,7 +728,6 @@ CellReturnStatus CellularModuleA7672XX::mqttDisconnect() {
 CellReturnStatus CellularModuleA7672XX::mqttPublish(const std::string &topic,
                                                     const std::string &payload, int qos, int retain,
                                                     int timeoutS) {
-
   char buf[50] = {0};
   std::string result;
 
@@ -1292,7 +1305,7 @@ CellReturnStatus CellularModuleA7672XX::_httpAction(int httpMethodCode, int conn
 
   // 0,code,size
   // start from code, ignore 0 (GET)
-  Common::splitByComma(data.substr(2, data.length()), &code, &bodyLen);
+  Common::splitByDelimiter(data.substr(2, data.length()), &code, &bodyLen);
   if (code == -1 || (code > 700 && code < 720)) {
     // -1 means string cannot splitted by comma
     // 7xx This is error code <errcode> not http <status_code>
