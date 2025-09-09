@@ -1,4 +1,4 @@
-set(srcs 
+set(srcs
   "src/airgradientClient.cpp"
   "src/airgradientCellularClient.cpp"
   "src/airgradientWifiClient.cpp"
