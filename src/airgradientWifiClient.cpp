@@ -64,18 +64,21 @@ std::string AirgradientWifiClient::httpFetchConfig() {
   return responseBody;
 }
 bool AirgradientWifiClient::httpPostMeasures(const std::string &payload) {
-  std::string url = buildPostMeasuresUrl(true);
+  std::string url = buildPostMeasuresUrl(false);
   AG_LOGI(TAG, "Post measures to %s", url.c_str());
 
   HTTPClient client;
   client.setConnectTimeout(timeoutMs); // Set timeout when establishing connection to server
   client.setTimeout(timeoutMs);        // Timeout when waiting for response from AG server
-  // By default, airgradient using https
-  if (client.begin(String(url.c_str()), AG_SERVER_ROOT_CA) == false) {
+  if (client.begin(String(url.c_str())) == false) {
     AG_LOGE(TAG, "Failed begin HTTPClient using TLS");
-    lastPostMeasuresSucceed = false;
     return false;
   }
+  //if (client.begin(String(url.c_str()), AG_SERVER_ROOT_CA) == false) {
+  //  AG_LOGE(TAG, "Failed begin HTTPClient using TLS");
+  //  lastPostMeasuresSucceed = false;
+  //  return false;
+  //}
 
   client.addHeader("content-type", "application/json");
   int statusCode = client.POST(String(payload.c_str()));
