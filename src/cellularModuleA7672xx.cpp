@@ -285,9 +285,17 @@ CellularModuleA7672XX::startNetworkRegistration(CellTechnology ct, const std::st
   AG_LOGI(TAG, "Start operation network registration");
   while ((MILLIS() - startOperationTime) < operationTimeoutMs && !finish) {
     switch (state) {
-    case CHECK_MODULE_READY:
+    case CHECK_MODULE_READY: {
       state = _implCheckModuleReady();
+      if (state == CHECK_MODULE_READY) {
+        // No point to retry check if module ready or not
+        // It needs to restarted / power cycled / make sure sim card attached
+        ESP_LOGE(TAG, "CE card is not ready");
+        finish = true;
+        continue;
+      }
       break;
+    }
     case PREPARE_REGISTRATION:
       state = _implPrepareRegistration(ct);
       startStateTime = MILLIS();
@@ -342,8 +350,8 @@ CellularModuleA7672XX::startNetworkRegistration(CellTechnology ct, const std::st
     DELAY_MS(1);
   }
 
-  if (!finish) {
-    AG_LOGW(TAG, "Register to network operation timeout!");
+  if (state != NETWORK_REGISTERED) {
+    AG_LOGW(TAG, "Register to network operation failed!");
     return result;
   }
 
@@ -401,20 +409,33 @@ CellularModuleA7672XX::httpGet(const std::string &url, int connectionTimeout, in
   }
 
   // +HTTPACTION
-  int statusCode = -1;
-  int bodyLen = -1;
-  // 0 is GET method defined valus for this module
-  result.status = _httpAction(0, connectionTimeout, responseTimeout, &statusCode, &bodyLen);
+  /// Execute HTTP request with 3 times retry when request failed, not error or timeout from CE card
+  int statusCode, bodyLen, counter = 0;
+  do {
+    statusCode = -1;
+    bodyLen = -1;
+
+    // 0 is GET method defined valus for this module
+    result.status = _httpAction(0, connectionTimeout, responseTimeout, &statusCode, &bodyLen);
+    if (result.status == CellReturnStatus::Ok) {
+      break;
+    }
+
+    ESP_LOGW(TAG, "Retry HTTP request in 2s");
+    counter += 1;
+    DELAY_MS(2000);
+  } while (counter < 3 && result.status == CellReturnStatus::Failed);
+
+  // Final check if request is successful or not
   if (result.status != CellReturnStatus::Ok) {
+    AG_LOGE(TAG, "HTTP request failed!");
     _httpTerminate();
     return result;
   }
-
   AG_LOGI(TAG, "HTTP response code %d with body len: %d. Retrieving response body...", statusCode,
           bodyLen);
 
   uint32_t retrieveStartTime = MILLIS();
-
   char *bodyResponse = nullptr;
   if (bodyLen > 0) {
     // Create temporary memory to handle the buffer
