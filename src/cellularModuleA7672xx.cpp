@@ -401,20 +401,34 @@ CellularModuleA7672XX::httpGet(const std::string &url, int connectionTimeout, in
   }
 
   // +HTTPACTION
-  int statusCode = -1;
-  int bodyLen = -1;
-  // 0 is GET method defined valus for this module
-  result.status = _httpAction(0, connectionTimeout, responseTimeout, &statusCode, &bodyLen);
+  /// Execute HTTP request with 3 times retry when request failed, not error or timeout from CE card
+  int statusCode, bodyLen, counter = 0;
+  do {
+    statusCode = -1;
+    bodyLen = -1;
+
+    // 0 is GET method defined valus for this module
+    result.status = _httpAction(0, connectionTimeout, responseTimeout, &statusCode, &bodyLen);
+    if (result.status == CellReturnStatus::Ok) {
+      break;
+    }
+
+    ESP_LOGW(TAG, "Retry HTTP request in 2s");
+    counter += 1;
+    DELAY_MS(2000);
+  } while (counter < 3 && result.status == CellReturnStatus::Failed);
+
+  // Final check if request is successful or not
   if (result.status != CellReturnStatus::Ok) {
+    AG_LOGE(TAG, "HTTP request failed!");
     _httpTerminate();
     return result;
   }
-
   AG_LOGI(TAG, "HTTP response code %d with body len: %d. Retrieving response body...", statusCode,
           bodyLen);
 
-  uint32_t retrieveStartTime = MILLIS();
 
+  uint32_t retrieveStartTime = MILLIS();
   char *bodyResponse = nullptr;
   if (bodyLen > 0) {
     // Create temporary memory to handle the buffer
