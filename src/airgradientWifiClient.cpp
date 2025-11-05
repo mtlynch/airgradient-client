@@ -27,7 +27,7 @@ std::string AirgradientWifiClient::httpFetchConfig() {
   client.setConnectTimeout(timeoutMs); // Set timeout when establishing connection to server
   client.setTimeout(timeoutMs);        // Timeout when waiting for response from AG server
   // By default, airgradient using https
-  if (client.begin(String(url.c_str()), AG_SERVER_ROOT_CA) == false) {
+  if (client.begin(String(url.c_str())) == false) {
     AG_LOGE(TAG, "Failed begin HTTPClient using TLS");
     lastFetchConfigSucceed = false;
     return {};
@@ -71,7 +71,7 @@ bool AirgradientWifiClient::httpPostMeasures(const std::string &payload) {
   client.setConnectTimeout(timeoutMs); // Set timeout when establishing connection to server
   client.setTimeout(timeoutMs);        // Timeout when waiting for response from AG server
   // By default, airgradient using https
-  if (client.begin(String(url.c_str()), AG_SERVER_ROOT_CA) == false) {
+  if (client.begin(String(url.c_str())) == false) {
     AG_LOGE(TAG, "Failed begin HTTPClient using TLS");
     lastPostMeasuresSucceed = false;
     return false;
