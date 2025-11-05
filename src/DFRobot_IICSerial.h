@@ -1,6 +1,6 @@
 /*!
  * @file DFRobot_IICSerial.h
- * @brief Define the basic structure of class DFRobot_IICSerial 
+ * @brief Define the basic structure of class DFRobot_IICSerial
  * @n This is a library for IIC to UART module, the maximum rate is 1Mbps;
  * @n The band rate, word length, and check format of every sub UART can be set independently;
  * @n The module can provide at most 2Mbps communication rate;
@@ -56,7 +56,7 @@ class DFRobot_IICSerial : public Stream{
 #endif
 public:
   /**
-   * @brief Data format: N for no parity, Z for 0 parity, O for Odd parity, E for Even parity, F for 1 parity. 
+   * @brief Data format: N for no parity, Z for 0 parity, O for Odd parity, E for Even parity, F for 1 parity.
    * @n 8 represents the number of data bit, 1 or 2 for the number of stop bit.
    */
   #define IICSerial_8N1    0x00
@@ -72,18 +72,18 @@ public:
   #define SUBUART_CHANNEL_1    0x00    //< Sub UART channel1
   #define SUBUART_CHANNEL_2    0x01    //< Sub UART channel2
   #define SUBUART_CHANNEL_ALL  0x11    //< All sub channels
-  #define IIC_ADDR_FIXED       0x10    //< The 4th and 3rd bits of IIC address are fixed, value 1 and 0 respectively 
+  #define IIC_ADDR_FIXED       0x10    //< The 4th and 3rd bits of IIC address are fixed, value 1 and 0 respectively
 
   #define ERR_OK                0
   #define ERR_REGDATA          -1
   #define ERR_READ             -2
   #define FOSC                 14745600L//< External cystal frequency 14.7456MHz
-  #define OBJECT_REGISTER      0x00     //< Register object 
-  #define OBJECT_FIFO          0x01     //< FIFO buffer object 
+  #define OBJECT_REGISTER      0x00     //< Register object
+  #define OBJECT_FIFO          0x01     //< FIFO buffer object
 #ifdef ARDUINO_ARCH_NRF5
-  #define IIC_BUFFER_SIZE      63       //< micro:bit IIC can transmit at most 63 bytes each time 
+  #define IIC_BUFFER_SIZE      63       //< micro:bit IIC can transmit at most 63 bytes each time
 #elif ARDUINO_ARCH_MPYTHON
-  #define IIC_BUFFER_SIZE      31       //< mPython IIC can transmit at most 31 bytes each time 
+  #define IIC_BUFFER_SIZE      31       //< mPython IIC can transmit at most 31 bytes each time
 #else
   #define IIC_BUFFER_SIZE      32       //< UNO, Mega2560, Leonardo(AVR series), IIC can transmit at most 32 bytes each time
 #endif
@@ -92,7 +92,7 @@ public:
       eNormalMode = 0,
       //eIrDAMode
   }eCommunicationMode_t;
-  
+
   typedef enum{
       eNormal = 0,
       //eLineBreak
@@ -132,8 +132,8 @@ protected:
       uint8_t tFEmpty : 1; /**< Transmit FIFO null interrupt enable bit, 1-enable, 0-disable */
       uint8_t rsv : 3;     /**< Reserved bit */
       uint8_t fErr: 1;     /**< Receive FIFO data error interrupt enable bit, 1-enable, 0-disable */
-  } __attribute__ ((packed)) sSierReg_t; 
-  
+  } __attribute__ ((packed)) sSierReg_t;
+
   /**
    * @struct sFcrReg_t
    * @brief FCR description of WK2132 sub UART FIFO control register:
@@ -150,11 +150,11 @@ protected:
       uint8_t tfEn : 1;   /**< Sub UART transmit FIFO enable bit, 1-enable, 0-disable */
       uint8_t rfTrig : 2; /**< Sub UART receive FIFO contact setting bit, 00-8Byte(default), 01-16Byte, 10-24Byte, 11-18Byte */
       uint8_t tfTrig: 2;  /**< Sub UART transmit FIFO contact setting bit, 00-8Byte(default), 01-16Byte, 10-24Byte, 11-18Byte */
-  } __attribute__ ((packed)) sFcrReg_t; 
-  
+  } __attribute__ ((packed)) sFcrReg_t;
+
   /**
    * @struct sScrReg_t
-   * @brief SCR description of WK2132 sub UART control register: 
+   * @brief SCR description of WK2132 sub UART control register:
    * @n -------------------------------------------------------------------------
    * @n |   b7   |   b6   |   b5   |   b4   |   b3   |   b2   |   b1   |   b0   |
    * @n -------------------------------------------------------------------------
@@ -178,13 +178,13 @@ protected:
    * @n -------------------------------------------------------------------------
    */
   typedef struct{
-      uint8_t format: 4; /**< Sub UART data format: PAEN sub UART check enable bit, 1-with parity bit(9-bits data), 0-no parity bit (8-bits data) PAM sub UART check mode selection bit, take effect when PAEN bit is 1, 00-0 parity(default), 01-Odd parity 10-Even parity, 11-1 parity, STPL sub UART stop bit length, 0-1bit, 1-2bits, etc.*/                           
+      uint8_t format: 4; /**< Sub UART data format: PAEN sub UART check enable bit, 1-with parity bit(9-bits data), 0-no parity bit (8-bits data) PAM sub UART check mode selection bit, take effect when PAEN bit is 1, 00-0 parity(default), 01-Odd parity 10-Even parity, 11-1 parity, STPL sub UART stop bit length, 0-1bit, 1-2bits, etc.*/
       uint8_t irEn : 1;  /**< Sub UART IR enable bit, 0-normal mode, 1-IR mode */
       uint8_t lBreak: 1; /**< Sub UART Line-Break output control bit, 0-output normally, 1-Line-Break output (TX force output 0) */
       uint8_t rsv : 2;   /**< Reserved bit */
   } __attribute__ ((packed)) sLcrReg_t;
 
-  /* 
+  /*
    FSR description of WK2132 sub UART FIFO state register:
      * -------------------------------------------------------------------------
      * |   b7   |   b6   |   b5   |   b4   |   b3   |   b2   |   b1   |   b0   |
@@ -212,13 +212,13 @@ protected:
       uint8_t rFoe : 1;  /**< Sub UART receive FIFO data overflow error flag bit, 0-no OE error, 1-OE error */
   } __attribute__ ((packed)) sFsrReg_t;
 
-  
+
   typedef enum{
       clock = 0, /**< Operate global control register, control sub UART clock */
       rst,       /**< Operate global sub UART reset register, reset a sub UART independently through software */
       intrpt     /**< Operate global interrupt register, control sub UART total interrupt */
   }eGlobalRegType_t;
-  
+
   typedef enum{
       page0 = 0,
       page1,
@@ -231,18 +231,18 @@ public:
    * @brief Constructor
    * @param wire I2C bus pointer object, default Wire
    * @param subUartChannel sub UART channel, WK2132 has two sub UARTs: SUBUART_CHANNEL_1 or SUBUART_CHANNEL_2
-   * @param IA1 corresponds with IA1 Level(0 or 1) of DIP switch on the module, and is used for configuring 
+   * @param IA1 corresponds with IA1 Level(0 or 1) of DIP switch on the module, and is used for configuring
    * @n the IIC address of the 6th bit value(default: 1).
    * @param IA0 corresponds with IA0 Level(0 or 1) of DIP switch on the module, and is used for configuring
    * @n IIC address of the 5th bit value(default: 1).
-   * @n IIC address configuration: 
+   * @n IIC address configuration:
    * @n 7   6   5   4   3   2   1   0
    * @n 0  IA1 IA0  1   0  C1  C0  0/1
-   * @n IIC address only has 7 bits, while there are 8 bits for one byte, so the extra one bit will be filled as 0. 
+   * @n IIC address only has 7 bits, while there are 8 bits for one byte, so the extra one bit will be filled as 0.
    * @n The 6th bit corresponds with IA1 Level of DIP switch, can be configured manually.
-   * @n The 5th bit corresponds with IA0 Level of DIP switch, can be configured manually. 
+   * @n The 5th bit corresponds with IA0 Level of DIP switch, can be configured manually.
    * @n The 4th and 3rd bits are fixed, value 1 and 0 respectively.
-   * @n The values of the 2nd and 1st bits are the sub UART channels, 00 for sub UART 1, 01 for sub UART 2. 
+   * @n The values of the 2nd and 1st bits are the sub UART channels, 00 for sub UART 1, 01 for sub UART 2.
    * @n The 0 bit represents the operation object: 0 for register, 1 for FIFO cache.
    */
   DFRobot_IICSerial(TwoWire &wire = Wire, uint8_t subUartChannel = SUBUART_CHANNEL_1, uint8_t IA1 = 1, uint8_t IA0 = 1);
@@ -252,20 +252,20 @@ public:
    * @fn begin(long unsigned baud)
    * @brief Init function, set band rate of sub UART
    * @param baud Band rate
-   * @n Besides the commonly-used 9600, 57600, 115200, it also supports: 
+   * @n Besides the commonly-used 9600, 57600, 115200, it also supports:
    * @n 2400, 4800, 7200, 14400, 19200, 28800, 38400, 76800, 153600, 230400, 460800, 307200, 921600
-   * @return Return 0 if it succeeds, otherwise return non-zero 
+   * @return Return 0 if it succeeds, otherwise return non-zero
    */
   int begin(long unsigned baud){return begin(baud, IICSerial_8N1, eNormalMode, eNormal);}
 
   /**
    * @fn begin(long unsigned baud, uint8_t format)
-   * @brief Init function, set sub UART band rate, data format 
+   * @brief Init function, set sub UART band rate, data format
    * @param baud Band rate
    * @param format Data format: IICSerial_8N1, IICSerial_8N2, IICSerial_8Z1
    * @n IICSerial_8Z2, IICSerial_8O1, IICSerial_8O2, IICSerial_8E1, IICSerial_8E2
    * @n IICSerial_8F1, IICSerial_8F2
-   * @return Return 0 if it succeeds, otherwise return non-zero 
+   * @return Return 0 if it succeeds, otherwise return non-zero
    */
   int begin(long unsigned baud, uint8_t format){return begin(baud, format, eNormalMode, eNormal);}
 
@@ -299,9 +299,9 @@ public:
 
   /**
    * @fn read(void *pBuf, size_t size)
-   * @brief Read a specified number of character from FIFO and store them into a array. 
-   * @n This operation doesn't involve receive buffer. 
-   * @param pBuf Array for storing data 
+   * @brief Read a specified number of character from FIFO and store them into a array.
+   * @n This operation doesn't involve receive buffer.
+   * @param pBuf Array for storing data
    * @param size The number of character to be read
    * @return Return the readings
    */
@@ -315,7 +315,7 @@ public:
 
   /**
    * @fn write
-   * @brief Write one byte into transmit FIFO cache.The following are the overload functions of the byte of different data type. 
+   * @brief Write one byte into transmit FIFO cache.The following are the overload functions of the byte of different data type.
    * @param n data to be written
    * @return Return 0 if it succeeds, otherwise return -1
    */
@@ -324,7 +324,7 @@ public:
   inline size_t write(long n) { return write((uint8_t)n); }
   inline size_t write(unsigned int n) { return write((uint8_t)n); }
   inline size_t write(int n) { return write((uint8_t)n); }
- 
+
   /**
    * @fn write
    * @brief Write data into transmit FIFO cache
@@ -347,24 +347,24 @@ protected:
    * @param baud Band rate
    * @param format Sub UART data format: IICSerial_8N1, IICSerial_8N2, IICSerial_8Z1
    * @n IICSerial_8Z2, IICSerial_8O1, IICSerial_8O2, IICSerial_8E1, IICSerial_8E2
-   * @n IICSerial_8F1, IICSerial_8F2 
+   * @n IICSerial_8F1, IICSerial_8F2
    * @param mode Sub UART communciation mode, can set to UART mode, all enumeration values in eCommunicationMode_t
    * @param opt Sub UART Line-Break output control bit, can set to normal output (0) and Line-Break output (1),
    * @n all enumeration values in eLineBreakOutput_t or 0/1
-   * @return Return 0 if init succeeds, otherwise return non-zero 
+   * @return Return 0 if init succeeds, otherwise return non-zero
    */
   int begin(long unsigned baud, uint8_t format, eCommunicationMode_t mode, eLineBreakOutput_t opt);
 
   /**
    * @fn subSerialConfig
-   * @brief Sub UART parameter configuration 
+   * @brief Sub UART parameter configuration
    * @param subUartChannel Sub UART channel: SUBUART_CHANNEL_1 or SUBUART_CHANNEL_2
    */
   void subSerialConfig(uint8_t subUartChannel);
 
   /**
    * @fn subSerialGlobalRegEnable
-   * @brief Sub UART global register enable 
+   * @brief Sub UART global register enable
    * @param subUartChannel Sub UART channel: SUBUART_CHANNEL_1 or SUBUART_CHANNEL_2
    * @param type Global register type, all enumeration values in eGlobalRegType_t
    */
@@ -373,7 +373,7 @@ protected:
   /**
    * @fn subSerialRegConfig
    * @brief Sub UART register configuration: SIER, FCR, LCR
-   * @param reg Register address 
+   * @param reg Register address
    * @param pValue Data store buffer, 1 byte
    */
   void subSerialRegConfig(uint8_t reg, void *pValue);
@@ -395,7 +395,7 @@ protected:
 
   /**
    * @fn setSubSerialConfigReg
-   * @brief Set sub UART configuration register 
+   * @brief Set sub UART configuration register
    * @param format Sub UART data format: IICSerial_8N1, IICSerial_8N2, IICSerial_8Z1
    * @n IICSerial_8Z2, IICSerial_8O1, IICSerial_8O2, IICSerial_8E1, IICSerial_8E2
    * @n IICSerial_8F1, IICSerial_8F2
@@ -406,7 +406,7 @@ protected:
 
   /**
    * @fn subSerialPageSwitch
-   * @brief Sub UART register page switch 
+   * @brief Sub UART register page switch
    * @param page Page number, all enumeration values in ePageNumber_t
    */
   void subSerialPageSwitch(ePageNumber_t page);
@@ -432,25 +432,25 @@ protected:
    * @fn subSerialChnnlSwitch
    * @brief Sub UART channel switch
    * @param subUartChannel Sub UART channel: SUBUART_CHANNEL_1 or SUBUART_CHANNEL_2
-   * @return Return the switched channel 
+   * @return Return the switched channel
    */
   uint8_t subSerialChnnlSwitch(uint8_t subUartChannel);
 
   /**
    * @fn sleep
-   * @brief Sub UART enters sleep state 
+   * @brief Sub UART enters sleep state
    */
   void sleep();
 
   /**
    * @fn wakeup
-   * @brief Sub UART wakes up from sleep 
+   * @brief Sub UART wakes up from sleep
    */
   void wakeup();
 
   /**
    * @fn writeReg
-   * @brief Write register function 
+   * @brief Write register function
    * @param reg  Register address  8bits
    * @param pBuf Store buffer for the data to be written
    * @param size Length of the data to be written
@@ -459,7 +459,7 @@ protected:
 
   /**
    * @fn writeFIFO
-   * @brief Write FIFO buffer 
+   * @brief Write FIFO buffer
    * @param pBuf Store buffer for the data to be written
    * @param size Length of the data to be written
    */
@@ -470,8 +470,8 @@ protected:
    * @brief Read register function
    * @param reg  Register address 8bits
    * @param pBuf Store buffer for the data to be read
-   * @param size Length of the data to be read 
-   * @return Return the actual length, 0 means failed to read  
+   * @param size Length of the data to be read
+   * @return Return the actual length, 0 means failed to read
    */
   uint8_t readReg(uint8_t reg, void* pBuf, size_t size);
 

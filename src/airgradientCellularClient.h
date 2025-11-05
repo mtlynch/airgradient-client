@@ -39,8 +39,11 @@ public:
   bool httpPostMeasures(const std::string &payload);
   bool httpPostMeasures(const AirgradientPayload &payload);
   bool mqttConnect();
+  bool mqttConnect(const char *uri);
+  bool mqttConnect(const std::string &host, int port, std::string username = "", std::string password = "");
   bool mqttDisconnect();
   bool mqttPublishMeasures(const std::string &payload);
+  bool mqttPublishMeasures(const AirgradientPayload &payload);
 
 private:
   std::string _getEndpoint();

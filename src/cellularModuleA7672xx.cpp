@@ -285,9 +285,17 @@ CellularModuleA7672XX::startNetworkRegistration(CellTechnology ct, const std::st
   AG_LOGI(TAG, "Start operation network registration");
   while ((MILLIS() - startOperationTime) < operationTimeoutMs && !finish) {
     switch (state) {
-    case CHECK_MODULE_READY:
+    case CHECK_MODULE_READY: {
       state = _implCheckModuleReady();
+      if (state == CHECK_MODULE_READY) {
+        // No point to retry check if module ready or not
+        // It needs to restarted / power cycled / make sure sim card attached
+        ESP_LOGE(TAG, "CE card is not ready");
+        finish = true;
+        continue;
+      }
       break;
+    }
     case PREPARE_REGISTRATION:
       state = _implPrepareRegistration(ct);
       startStateTime = MILLIS();
@@ -342,8 +350,8 @@ CellularModuleA7672XX::startNetworkRegistration(CellTechnology ct, const std::st
     DELAY_MS(1);
   }
 
-  if (!finish) {
-    AG_LOGW(TAG, "Register to network operation timeout!");
+  if (state != NETWORK_REGISTERED) {
+    AG_LOGW(TAG, "Register to network operation failed!");
     return result;
   }
 
@@ -401,20 +409,33 @@ CellularModuleA7672XX::httpGet(const std::string &url, int connectionTimeout, in
   }
 
   // +HTTPACTION
-  int statusCode = -1;
-  int bodyLen = -1;
-  // 0 is GET method defined valus for this module
-  result.status = _httpAction(0, connectionTimeout, responseTimeout, &statusCode, &bodyLen);
+  /// Execute HTTP request with 3 times retry when request failed, not error or timeout from CE card
+  int statusCode, bodyLen, counter = 0;
+  do {
+    statusCode = -1;
+    bodyLen = -1;
+
+    // 0 is GET method defined valus for this module
+    result.status = _httpAction(0, connectionTimeout, responseTimeout, &statusCode, &bodyLen);
+    if (result.status == CellReturnStatus::Ok) {
+      break;
+    }
+
+    ESP_LOGW(TAG, "Retry HTTP request in 2s");
+    counter += 1;
+    DELAY_MS(2000);
+  } while (counter < 3 && result.status == CellReturnStatus::Failed);
+
+  // Final check if request is successful or not
   if (result.status != CellReturnStatus::Ok) {
+    AG_LOGE(TAG, "HTTP request failed!");
     _httpTerminate();
     return result;
   }
-
   AG_LOGI(TAG, "HTTP response code %d with body len: %d. Retrieving response body...", statusCode,
           bodyLen);
 
   uint32_t retrieveStartTime = MILLIS();
-
   char *bodyResponse = nullptr;
   if (bodyLen > 0) {
     // Create temporary memory to handle the buffer
@@ -608,8 +629,9 @@ CellularModuleA7672XX::httpPost(const std::string &url, const std::string &body,
 }
 
 CellReturnStatus CellularModuleA7672XX::mqttConnect(const std::string &clientId,
-                                                    const std::string &host, int port) {
-  char buf[150] = {0};
+                                                    const std::string &host, int port,
+                                                    std::string username, std::string password) {
+  char buf[200] = {0};
   std::string result;
 
   // +CMQTTSTART
@@ -648,12 +670,25 @@ CellReturnStatus CellularModuleA7672XX::mqttConnect(const std::string &clientId,
 
   // +CMQTTCONNECT
   // keep alive 120; cleansession 1
-  memset(buf, 0, 150);
-  sprintf(buf, "+CMQTTCONNECT=0,\"tcp://%s:%d\",120,1", host.c_str(), port);
+  memset(buf, 0, 200);
+  if (username != "" && password != "") {
+    // Both username and password provided
+    AG_LOGI(TAG, "Connect with username and password");
+    sprintf(buf, "+CMQTTCONNECT=0,\"tcp://%s:%d\",120,1,\"%s\",\"%s\"", host.c_str(), port,
+            username.c_str(), password.c_str());
+  } else if (username != "") {
+    // Only username that is provided
+    AG_LOGI(TAG, "Connect with username only");
+    sprintf(buf, "+CMQTTCONNECT=0,\"tcp://%s:%d\",120,1,\"%s\"", host.c_str(), port,
+            username.c_str());
+  } else {
+    // No credentials
+    sprintf(buf, "+CMQTTCONNECT=0,\"tcp://%s:%d\",120,1", host.c_str(), port);
+  }
   at_->sendAT(buf);
   if (at_->waitResponse(30000, "+CMQTTCONNECT: 0,") != ATCommandHandler::ExpArg1) {
     at_->clearBuffer();
-    return CellReturnStatus::Ok;
+    return CellReturnStatus::Error;
   }
 
   if (at_->waitAndRecvRespLine(result) == -1) {
@@ -714,7 +749,6 @@ CellReturnStatus CellularModuleA7672XX::mqttDisconnect() {
 CellReturnStatus CellularModuleA7672XX::mqttPublish(const std::string &topic,
                                                     const std::string &payload, int qos, int retain,
                                                     int timeoutS) {
-
   char buf[50] = {0};
   std::string result;
 
@@ -1292,7 +1326,7 @@ CellReturnStatus CellularModuleA7672XX::_httpAction(int httpMethodCode, int conn
 
   // 0,code,size
   // start from code, ignore 0 (GET)
-  Common::splitByComma(data.substr(2, data.length()), &code, &bodyLen);
+  Common::splitByDelimiter(data.substr(2, data.length()), &code, &bodyLen);
   if (code == -1 || (code > 700 && code < 720)) {
     // -1 means string cannot splitted by comma
     // 7xx This is error code <errcode> not http <status_code>

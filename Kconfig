@@ -3,7 +3,7 @@ menu "Airgradient Client"
         config BUFFER_LENGTH_ALLOCATION
             int "Buffer to allocate when receiving response"
             default 512
-            range 100 5000 
+            range 100 5000
             help
                 Size of buffer to allocate to receive AT command response in bytes
     endmenu
@@ -16,6 +16,6 @@ menu "Airgradient Client"
                 For A7672XX length command of HTTPREAD size to read in bytes
         config DELAY_HTTPREAD_ITERATION_ENABLED
             bool "Add delay between HTTPREAD iteration"
-            default y 
+            default y
     endmenu
 endmenu

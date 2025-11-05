@@ -60,7 +60,8 @@ public:
                                             const std::string &headContentType = "",
                                             int connectionTimeout = -1, int responseTimeout = -1);
   virtual CellReturnStatus mqttConnect(const std::string &clientId, const std::string &host,
-                                       int port = 1883);
+                                       int port = 1883, std::string username = "",
+                                       std::string password = "");
   virtual CellReturnStatus mqttDisconnect();
   virtual CellReturnStatus mqttPublish(const std::string &topic, const std::string &payload,
                                        int qos = 1, int retain = 0, int timeoutS = 15);

@@ -40,4 +40,4 @@ public:
 
 #endif // ESP8266
 #endif // AIRGRADIENT_SERIAL_H
-#endif // ARDUINO 
+#endif // ARDUINO
